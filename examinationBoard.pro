@@ -5,7 +5,8 @@ CONFIG -= qt
 
 SOURCES += \
         code.cpp \
-        main.cpp
+        main.cpp \
+        modulecode.cpp
 
 LIBS += -lboost_unit_test_framework
 
@@ -15,4 +16,5 @@ macx{
 }
 
 HEADERS += \
-    code.h
+    code.h \
+    modulecode.h
