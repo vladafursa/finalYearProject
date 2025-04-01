@@ -6,7 +6,7 @@ class AssessmentCode:public Code
 {
 public:
     AssessmentCode();
-    using Code::Code
+    using Code::Code;
 };
 
 #endif // ASSESSMENTCODE_H
