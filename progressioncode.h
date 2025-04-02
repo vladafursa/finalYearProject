@@ -23,6 +23,7 @@ public:
     void setStudentRecordCreated(bool providedStudentRecordCreated);
     void setProgressToNextStage(bool providedProgresstoNextStage);
     void setProgressToNextYear(bool providedProgresstoNextYear);
+    //debugging
     void display() const override;
 };
 

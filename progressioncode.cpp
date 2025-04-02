@@ -4,7 +4,7 @@ ProgressionCode::ProgressionCode()
 {
 
 }
-
+//inherited constructor
 ProgressionCode::ProgressionCode(const std::string providedCode, const std::string providedDescription, const bool providedStudentRecordCreated, const bool providedProgresstoNextStage, bool providedProgresstoNextYear): Code(providedCode, providedDescription){
     studentRecordCreated=providedStudentRecordCreated;
     progressToNextStage=providedProgresstoNextStage;
