@@ -10,6 +10,7 @@
 
 //Module codes
 //Pass codes
+namespace ModuleCodes {
 const ModuleCode PA("PA", "Pass");
 const ModuleCode PC("PC", "Pass with compensation");
 const ModuleCode PN("PN", "Pass with Commendation");
@@ -68,9 +69,10 @@ const ModuleCode EB("EB", "Changed at Exam Board");
 // Withdrawn codes
 const ModuleCode WD("WD", "Withdrew");
 const ModuleCode WA("WA", "Replaced by alternative module to be added after Board");
-
+}
 
 //Assessment codes
+namespace AssessmentCodes {
 // Pass codes
 const AssessmentCode PC("PC", "Pass with compensation");
 const AssessmentCode PL("PL", "Pass – late submission");
@@ -120,9 +122,10 @@ const AssessmentCode RC("RC", "Re-calculated");
 
 // Withdrawn codes
 const AssessmentCode WD("WD", "Withdrew");
-
+}
 
 //Progression codes
+namespace ProgressionCodes{
 const ProgressionCode P0("P0", "Pass Stage 0", true, true, true);
 const ProgressionCode P1("P1", "Pass Stage 1", true, true, true);
 const ProgressionCode P2("P2", "Pass Stage 2", true, true, true);
@@ -166,9 +169,10 @@ const ProgressionCode NK("NK", "Result Not Yet Known", false, false, false);
 const ProgressionCode SO("SO", "Awaiting Decision", false, false, false);
 const ProgressionCode WD("WD", "Withdrawn", false, false, false);
 const ProgressionCode WI("WI", "Withdrawn - Internal Transfer", true, false, false);
-
+}
 
 //Award codes
+namespace AwardCodes{
 const AwardCode C10("10", "First Class Honours");
 const AwardCode C21("21", "2nd Class Honours-1st Division");
 const AwardCode C22("22", "2nd Class Honours-2nd Division");
@@ -219,5 +223,5 @@ const AwardCode V3("V3", "Postgraduate Diploma (Competent) (Bar Voc)");
 const AwardCode V4("V4", "Postgraduate Certificate (Outstanding) (Bar Voc)");
 const AwardCode V5("V5", "Postgraduate Certificate (Very Competent) (Bar Voc)");
 const AwardCode V6("V6", "Postgraduate Certificate (Competent) (Bar Voc)");
-
+}
 #endif // CODECONSTANTS_H

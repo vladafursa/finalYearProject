@@ -5,6 +5,7 @@ CONFIG -= qt
 
 SOURCES += \
         assessment.cpp \
+        assessmentattempt.cpp \
         assessmentcode.cpp \
         awardcode.cpp \
         code.cpp \
@@ -24,6 +25,7 @@ macx{
 HEADERS += \
     CodeConstants.h \
     assessment.h \
+    assessmentattempt.h \
     assessmentcode.h \
     awardcode.h \
     code.h \
