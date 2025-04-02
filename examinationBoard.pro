@@ -8,6 +8,7 @@ SOURCES += \
         awardcode.cpp \
         code.cpp \
         main.cpp \
+        misconduct.cpp \
         modulecode.cpp \
         nec.cpp \
         progressioncode.cpp
@@ -24,6 +25,7 @@ HEADERS += \
     assessmentcode.h \
     awardcode.h \
     code.h \
+    misconduct.h \
     modulecode.h \
     nec.h \
     progressioncode.h
