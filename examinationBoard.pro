@@ -4,6 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        assessment.cpp \
         assessmentcode.cpp \
         awardcode.cpp \
         code.cpp \
@@ -22,6 +23,7 @@ macx{
 
 HEADERS += \
     CodeConstants.h \
+    assessment.h \
     assessmentcode.h \
     awardcode.h \
     code.h \
