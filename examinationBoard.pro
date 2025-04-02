@@ -11,6 +11,7 @@ SOURCES += \
         code.cpp \
         main.cpp \
         misconduct.cpp \
+        module.cpp \
         modulecode.cpp \
         nec.cpp \
         progressioncode.cpp
@@ -24,12 +25,14 @@ macx{
 
 HEADERS += \
     CodeConstants.h \
+    StdExtension.h \
     assessment.h \
     assessmentattempt.h \
     assessmentcode.h \
     awardcode.h \
     code.h \
     misconduct.h \
+    module.h \
     modulecode.h \
     nec.h \
     progressioncode.h
