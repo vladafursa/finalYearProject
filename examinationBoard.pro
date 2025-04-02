@@ -12,6 +12,7 @@ SOURCES += \
         main.cpp \
         misconduct.cpp \
         module.cpp \
+        moduleattempt.cpp \
         modulecode.cpp \
         nec.cpp \
         progressioncode.cpp
@@ -33,6 +34,7 @@ HEADERS += \
     code.h \
     misconduct.h \
     module.h \
+    moduleattempt.h \
     modulecode.h \
     nec.h \
     progressioncode.h

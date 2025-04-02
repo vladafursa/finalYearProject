@@ -24,15 +24,15 @@ void Assessment::setName(std::string assessmentName){
 }
 
 //getters
-std::string Assessment::getId(){
+std::string Assessment::getId() const{
     return id;
 }
 
-std::string Assessment::getType(){
+std::string Assessment::getType() const{
     return type;
 }
 
-std::string Assessment::getName(){
+std::string Assessment::getName() const{
     return name;
 }
 

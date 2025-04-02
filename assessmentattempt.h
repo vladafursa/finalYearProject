@@ -35,6 +35,7 @@ public:
             const Misconduct* providedMisconduct = nullptr);//optional
     //getters
     std::string getStudentNumber() const;
+    const Assessment& getAssessment() const;
     int getNumberOfAttempt() const;
     std::string getType() const;
     bool isSubmittedLate() const;
@@ -42,6 +43,7 @@ public:
     const AssessmentCode* getCode() const;
     const NEC* getNec() const;
     const Misconduct* getMisconduct() const;
+
     //setters
     void setStudentNumber(const std::string providedStudentNumber);
     void setNumberOfAttempt(int providedNumberOfAttempt);

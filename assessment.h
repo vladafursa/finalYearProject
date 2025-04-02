@@ -20,9 +20,9 @@ public:
     void setName(std::string assessmentName);
 
     //getters
-    std::string getId();
-    std::string getType();
-    std::string getName();
+    std::string getId() const;
+    std::string getType() const;
+    std::string getName() const;
 };
 
 #endif // ASSESSMENT_H

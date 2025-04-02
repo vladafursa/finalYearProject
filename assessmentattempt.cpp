@@ -27,6 +27,10 @@ std::string AssessmentAttempt::getStudentNumber() const{
     return studentNumber;
 }
 
+const Assessment& AssessmentAttempt::getAssessment() const {
+    return assessment;
+}
+
 int AssessmentAttempt::getNumberOfAttempt() const{
     return numberOfAttempt;
 }
