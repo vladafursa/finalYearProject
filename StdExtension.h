@@ -2,6 +2,7 @@
 #define STDEXTENSION_H
 #include <functional>
 
+//accessed and modified from https://stackoverflow.com/questions/29379019/why-is-stdhash-not-specialised-for-stdreference-wrapper
 namespace std {
 template <typename T>
 struct hash<std::reference_wrapper<T>> {
