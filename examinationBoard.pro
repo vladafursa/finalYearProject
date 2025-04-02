@@ -19,6 +19,7 @@ macx{
 }
 
 HEADERS += \
+    CodeConstants.h \
     assessmentcode.h \
     awardcode.h \
     code.h \
