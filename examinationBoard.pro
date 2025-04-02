@@ -7,7 +7,8 @@ SOURCES += \
         assessmentcode.cpp \
         code.cpp \
         main.cpp \
-        modulecode.cpp
+        modulecode.cpp \
+        progressioncode.cpp
 
 LIBS += -lboost_unit_test_framework
 
@@ -19,4 +20,5 @@ macx{
 HEADERS += \
     assessmentcode.h \
     code.h \
-    modulecode.h
+    modulecode.h \
+    progressioncode.h

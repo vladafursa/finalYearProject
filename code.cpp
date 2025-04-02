@@ -6,7 +6,7 @@ Code::Code()
 
 }
 
-Code::Code(const std::string providedCode, std::string providedDescription){
+Code::Code(const std::string providedCode, const std::string providedDescription){
     code=providedCode;
     description=providedDescription;
 }
@@ -30,6 +30,6 @@ void Code::setDescription(const std::string providedDescription) {
 }
 
 // debugging
-virtual void Code::display() const {
+void Code::display() const {
     std::cout << "code: " << code << ", description: " << description << std::endl;
 }
