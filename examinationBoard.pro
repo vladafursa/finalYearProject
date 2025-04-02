@@ -9,6 +9,7 @@ SOURCES += \
         code.cpp \
         main.cpp \
         modulecode.cpp \
+        nec.cpp \
         progressioncode.cpp
 
 LIBS += -lboost_unit_test_framework
@@ -24,4 +25,5 @@ HEADERS += \
     awardcode.h \
     code.h \
     modulecode.h \
+    nec.h \
     progressioncode.h
