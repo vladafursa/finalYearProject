@@ -114,10 +114,10 @@ BOOST_AUTO_TEST_SUITE( checkIfGradeWasCorrectlyAssignedTests )
 
 BOOST_AUTO_TEST_CASE( normalGradeTest )
 {
-    double intGrade = 14.7;
+    double normalGrade = 14.7;
     std::string expectedResult = "1HIGH";
 
-    std::string actualResult =  gradeSystem.assignGrade(intGrade);
+    std::string actualResult =  gradeSystem.assignGrade(normalGrade);
 
     BOOST_CHECK_EQUAL(expectedResult, actualResult);
 }
@@ -125,30 +125,30 @@ BOOST_AUTO_TEST_CASE( normalGradeTest )
 //boarder tests
 BOOST_AUTO_TEST_CASE( upperBorderGradeTest )
 {
-    double intGrade = 14.6;
+    double closeGrade = 14.6;
     std::string expectedResult = "1HIGH";
 
-    std::string actualResult =  gradeSystem.assignGrade(intGrade);
+    std::string actualResult =  gradeSystem.assignGrade(closeGrade);
 
     BOOST_CHECK_EQUAL(expectedResult, actualResult);
 }
 
 BOOST_AUTO_TEST_CASE( lowerBorderGradeTest )
 {
-    double intGrade = 14.4;
+    double closeGrade = 14.4;
     std::string expectedResult = "1MID";
 
-    std::string actualResult =  gradeSystem.assignGrade(intGrade);
+    std::string actualResult =  gradeSystem.assignGrade(closeGrade);
 
     BOOST_CHECK_EQUAL(expectedResult, actualResult);
 }
 
 BOOST_AUTO_TEST_CASE( onBorderGradeTest )
 {
-    double intGrade = 14.5;
+    double borderGrade = 14.5;
     std::string expectedResult = "1HIGH";
 
-    std::string actualResult =  gradeSystem.assignGrade(intGrade);
+    std::string actualResult =  gradeSystem.assignGrade(borderGrade);
 
     BOOST_CHECK_EQUAL(expectedResult, actualResult);
 }
@@ -230,7 +230,6 @@ BOOST_AUTO_TEST_CASE( zeroTest )
     bool expectedResult = false;
 
     bool actualResult = gradeSystem.isGreaterThanThreshold(zeroGrade, threshold);
-
 
     BOOST_CHECK_EQUAL( actualResult, expectedResult );
 }
