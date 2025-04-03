@@ -49,7 +49,7 @@ int ModuleAttempt::getCreditsEarned() const{
     return creditsEarned;
 }
 
-ModuleCode* ModuleAttempt::getFinalCode() const{
+const ModuleCode* ModuleAttempt::getFinalCode() const{
     return finalCode;
 }
 
@@ -90,7 +90,7 @@ void ModuleAttempt::setCreditsEarned(int providedCreditsEarned){
     creditsEarned=providedCreditsEarned;
 }
 
-void ModuleAttempt::setFinalCode(ModuleCode* providedModuleCode){
+void ModuleAttempt::setFinalCode(const ModuleCode* providedModuleCode){
     finalCode=providedModuleCode;
 }
 
@@ -101,37 +101,76 @@ void ModuleAttempt::setPossibleCodes(std::vector<ModuleCode*>& providedPosibleCo
 //calculations
 
 //getting only latest attempts
-const std::vector<std::reference_wrapper<AssessmentAttempt>>& ModuleAttempt::getFinalattempts() const{
-    std::vector<std::reference_wrapper<AssessmentAttempt>>  finalAttempts;
+std::vector<std::reference_wrapper<AssessmentAttempt>> ModuleAttempt::getFinalattempts() const {
+    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts;
     const auto& assessments = module.getAssessmentsWithWeights();
     const auto& assessmentsAttempts = getAttempts();
+
     for (const auto& assessment : assessments) {
-            std::string assessmentId = assessment.first.get().getId();
-            int numberOfCurrentAssessmentAttempt = 0;
-            for (const auto& attempt : assessmentsAttempts){
-                std::string attemptAssessmentId=attempt.get().getAssessment().getId();
-                int numberOfAssessmentAttempt = attempt.get().getNumberOfAttempt();
-                    if(numberOfCurrentAssessmentAttempt<numberOfAssessmentAttempt){
-                        if (!finalAttempts.empty()){
-                            finalAttempts.pop_back();
-                        }
-                        finalAttempts.push_back(attempt);
-                    }
-                numberOfCurrentAssessmentAttempt = numberOfAssessmentAttempt;
+        std::string assessmentId = assessment.first.get().getId();
+        AssessmentAttempt* latestAttempt = nullptr;
+        int maxNumberOfAttempt = 0;
+
+        for (const auto& attempt : assessmentsAttempts) {
+            std::string attemptAssessmentId = attempt.get().getAssessment().getId();
+            int numberOfAssessmentAttempt = attempt.get().getNumberOfAttempt();
+
+            if (attemptAssessmentId == assessmentId && numberOfAssessmentAttempt > maxNumberOfAttempt) {
+                maxNumberOfAttempt = numberOfAssessmentAttempt;
+                latestAttempt = &attempt.get();
             }
+        }
+        finalAttempts.push_back(*latestAttempt);
     }
     return finalAttempts;
 }
 
+
 double ModuleAttempt::calculateAggregate(){
-    return 0.5;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    aggregate = 0;
+    const auto& assessments = module.getAssessmentsWithWeights();
+    for (const auto& assessment : assessments) {
+        std::string assessmentId = assessment.first.get().getId();
+        int weightingOfAssessment = assessment.second;
+
+        for (const auto& attempt : finalAttempts) {
+            std::string attemptAssessmentId = attempt.get().getAssessment().getId();
+            int grade = attempt.get().getGrade();
+
+            if (attemptAssessmentId == assessmentId) {
+                aggregate+=grade*weightingOfAssessment/100.0;
+            }
+        }
+    }
+    return aggregate;
 }
 
+bool ModuleAttempt::checkAllElementsPassed(){
+    bool allPassed = true;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+        int grade = attempt.get().getGrade();
+        if (grade<4){
+            allPassed = false;
+        }
+    }
+    return allPassed;
+}
 
+void ModuleAttempt::generateCode(){
+    if (checkAllElementsPassed()){
+        passed = true;
+        setFinalCode(&ModuleCodes::PA);
+        creditsEarned=module.getCredits();
+    }
+    else{
+        passed = false;
+    }
+}
 
 
 void generateCode();
 void populatePossibleDecisions();
-void calculateAggregate();
-bool determinPass();
+
 bool determinSpecialPass();

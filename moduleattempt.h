@@ -20,7 +20,7 @@ private:
     double aggregate;
     bool passed;
     int creditsEarned;
-    ModuleCode* finalCode;
+    const ModuleCode* finalCode;
     std::vector<ModuleCode*> posibleCodes;
 public:
     //constructor
@@ -40,7 +40,7 @@ public:
     double getAggregate() const;
     bool getPassed() const;
     int getCreditsEarned() const;
-    ModuleCode* getFinalCode() const;
+    const ModuleCode* getFinalCode() const;
     const std::vector<ModuleCode*>& getPossibleCodes() const;
 
     //setters
@@ -52,12 +52,13 @@ public:
     void setAggregate(double providedAggregate);
     void setPassed(bool providedPassed);
     void setCreditsEarned(int providedCreditsEarned);
-    void setFinalCode(ModuleCode* providedModuleCode);
+    void setFinalCode(const ModuleCode* providedModuleCode);
     void setPossibleCodes(std::vector<ModuleCode*>& providedPosibleCodes);
 
     //calculations
-    const std::vector<std::reference_wrapper<AssessmentAttempt>>& getFinalattempts() const;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> getFinalattempts() const;
     double calculateAggregate();
+    bool checkAllElementsPassed();
     void generateCode();
     void populatePossibleDecisions();
     bool determinPass();

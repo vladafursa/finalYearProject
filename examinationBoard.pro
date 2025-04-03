@@ -9,6 +9,7 @@ SOURCES += \
         assessmentcode.cpp \
         awardcode.cpp \
         code.cpp \
+        grades.cpp \
         main.cpp \
         misconduct.cpp \
         module.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     assessmentcode.h \
     awardcode.h \
     code.h \
+    grades.h \
     misconduct.h \
     module.h \
     moduleattempt.h \

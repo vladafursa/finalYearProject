@@ -15,7 +15,10 @@ SOURCES += moduletests.cpp \
         ../moduleattempt.cpp \
         ../modulecode.cpp \
         ../nec.cpp \
-        ../progressioncode.cpp
+        ../progressioncode.cpp \
+        ../grades.cpp \
+        gradesystemtests.cpp \
+        testmain.cpp
 
 LIBS += -lboost_unit_test_framework
 
