@@ -179,8 +179,8 @@ bool ModuleAttempt::determinSpecialPass(){
     std::vector<std::reference_wrapper<AssessmentAttempt>> failedAttempts;
     std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts) {
-        std::string grade = attempt.get().getGrade();
-        if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+        std::string attemptGrade = attempt.get().getGrade();
+        if(!gradeSystem.isGreaterThanThreshold(attemptGrade, "3LOW")){
             failedAttempts.push_back(attempt);
         }
     }
