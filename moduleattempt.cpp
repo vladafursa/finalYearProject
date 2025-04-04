@@ -105,7 +105,6 @@ std::string ModuleAttempt::getGrade(){
 }
 
 //calculations
-
 //getting only latest attempts
 std::vector<std::reference_wrapper<AssessmentAttempt>> ModuleAttempt::getFinalattempts() const {
     std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts;
@@ -195,8 +194,17 @@ bool ModuleAttempt::determinSpecialPass(){
     return canPass;
 }
 
+bool ModuleAttempt::getHadMisconduct(){
+    hadMisconduct = false;
+    for (const auto& attempt : attempts){
+        if (attempt.get().getMisconduct()!=nullptr){
+            hadMisconduct = true;
+        }
+    }
+    return hadMisconduct;
+}
 
-void generateCode();
+
 void populatePossibleDecisions();
 
 

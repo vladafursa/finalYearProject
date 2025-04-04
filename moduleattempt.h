@@ -18,6 +18,7 @@ private:
     std::string type;
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
     bool hadNec;
+    bool hadMisconduct;
     double aggregate;
     bool passed;
     int creditsEarned;
@@ -46,6 +47,7 @@ public:
     const ModuleCode* getFinalCode() const;
     const std::vector<ModuleCode*>& getPossibleCodes() const;
     std::string getGrade();
+    bool getHadMisconduct();
 
     //setters
     void setStudentNumber(std::string providedStudentNumber);
