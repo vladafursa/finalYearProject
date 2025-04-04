@@ -99,8 +99,7 @@ void ModuleAttempt::setPossibleCodes(std::vector<ModuleCode*>& providedPosibleCo
 }
 
 std::string ModuleAttempt::getGrade(){
-    double roundedGradePoint = gradeSystem.round(aggregate);
-    grade = gradeSystem.assignGrade(roundedGradePoint);
+    grade = gradeSystem.assignGrade(aggregate);
     return grade;
 }
 
@@ -148,6 +147,7 @@ double ModuleAttempt::calculateAggregate(){
             }
         }
     }
+    aggregate = gradeSystem.round(aggregate);
     return aggregate;
 }
 
