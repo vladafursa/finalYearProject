@@ -3,13 +3,15 @@
 #include "assessmentattempt.h"
 #include "module.h"
 #include "moduleattempt.h"
+#include "misconduct.h"
 using namespace std;
 
 int main()
 {
     Assessment coursework("1","coursework","coding classes");
     Assessment exam("2", "exam", "check knowledge about classes");
-    AssessmentAttempt attemptCoursework("T1", coursework, 1, "original", false, 3);
+    Misconduct m1("1", "T1", "serious", "low3");
+    AssessmentAttempt attemptCoursework("T1", coursework, 1, "original", false, 3, nullptr, nullptr, &m1);
     AssessmentAttempt attemptRepeatCoursework("T1", coursework, 2, "original", false, 12);
     AssessmentAttempt attemptExam("T1", exam, 1, "original", false, 3);
     AssessmentWeightsMap assessments;
@@ -35,5 +37,6 @@ int main()
     std::cout<< "special outcome: "<<attempt1.determinSpecialPass()<<std::endl;
     attempt1.generateCode();
     std::cout<<"code: "<<attempt1.getFinalCode()->getCode();
+    std::cout<<attempt1.getHadMisconduct();
     return 0;
 }
