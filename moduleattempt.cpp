@@ -98,6 +98,12 @@ void ModuleAttempt::setPossibleCodes(std::vector<ModuleCode*>& providedPosibleCo
     posibleCodes=providedPosibleCodes;
 }
 
+std::string ModuleAttempt::getGrade(){
+    double roundedGradePoint = gradeSystem.round(aggregate);
+    grade = gradeSystem.assignGrade(roundedGradePoint);
+    return grade;
+}
+
 //calculations
 
 //getting only latest attempts
@@ -136,10 +142,10 @@ double ModuleAttempt::calculateAggregate(){
 
         for (const auto& attempt : finalAttempts) {
             std::string attemptAssessmentId = attempt.get().getAssessment().getId();
-            int grade = attempt.get().getGrade();
+            int gradePoints = attempt.get().getGradePoints();
 
             if (attemptAssessmentId == assessmentId) {
-                aggregate+=grade*weightingOfAssessment/100.0;
+                aggregate+=gradePoints*weightingOfAssessment/100.0;
             }
         }
     }
@@ -150,16 +156,16 @@ bool ModuleAttempt::checkAllElementsPassed(){
     bool allPassed = true;
     std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts) {
-        int grade = attempt.get().getGrade();
-        if (grade<4){
-            allPassed = false;
+        std::string grade = attempt.get().getGrade();
+        if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+            allPassed=false;
         }
     }
     return allPassed;
 }
 
 void ModuleAttempt::generateCode(){
-    if (checkAllElementsPassed()){
+    if (checkAllElementsPassed() || determinSpecialPass()){
         passed = true;
         setFinalCode(&ModuleCodes::PA);
         creditsEarned=module.getCredits();
@@ -169,8 +175,28 @@ void ModuleAttempt::generateCode(){
     }
 }
 
+bool ModuleAttempt::determinSpecialPass(){
+    bool canPass = false;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> failedAttempts;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+        std::string grade = attempt.get().getGrade();
+        if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+            failedAttempts.push_back(attempt);
+        }
+    }
+    size_t numberOfFails = failedAttempts.size();
+    if (gradeSystem.isGreaterThanThreshold(grade, "3LOW") && numberOfFails==1){
+        std::string failedGrade = failedAttempts[0].get().getGrade();
+        if (gradeSystem.isGreaterThanThreshold(failedGrade, "FMARG")){
+            canPass = true;
+        }
+    }
+    return canPass;
+}
+
 
 void generateCode();
 void populatePossibleDecisions();
 
-bool determinSpecialPass();
+

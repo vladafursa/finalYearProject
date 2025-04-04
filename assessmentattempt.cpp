@@ -7,7 +7,7 @@ AssessmentAttempt::AssessmentAttempt(std::string providedStudentNumber,
                 int providedNumberOfAttempt,
                 std::string providedType,
                 bool providedSubmittedLate,
-                int providedGrade,
+                int providedGradePoints,
                 const AssessmentCode* providedCode,
                 const NEC* providedNec,
                 const Misconduct* providedMisconduct): assessment(providedAssessment) {
@@ -16,7 +16,7 @@ AssessmentAttempt::AssessmentAttempt(std::string providedStudentNumber,
     numberOfAttempt=providedNumberOfAttempt;
     type=providedType;
     submittedLate = providedSubmittedLate;
-    grade = providedGrade;
+    gradePoints = providedGradePoints;
     code = providedCode;
     nec = providedNec;
     misconduct = providedMisconduct;
@@ -43,7 +43,12 @@ bool AssessmentAttempt::isSubmittedLate() const{
     return submittedLate;
 }
 
-int AssessmentAttempt::getGrade() const{
+int AssessmentAttempt::getGradePoints() const{
+    return gradePoints;
+}
+
+std::string AssessmentAttempt::getGrade(){
+    grade = gradeSystem.assignGrade(gradePoints);
     return grade;
 }
 
@@ -76,7 +81,11 @@ void AssessmentAttempt::setSubmittedLate(bool providedSubmittedLate){
     submittedLate = providedSubmittedLate;
 }
 
-void AssessmentAttempt::setGrade(int providedGrade){
+void AssessmentAttempt::setGradePoints(int providedGradePoints){
+    gradePoints = providedGradePoints;
+}
+
+void AssessmentAttempt::setGrade(std::string providedGrade){
     grade = providedGrade;
 }
 
