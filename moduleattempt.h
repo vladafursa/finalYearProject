@@ -62,6 +62,7 @@ public:
     void setCreditsEarned(int providedCreditsEarned);
     void setFinalCode(const ModuleCode* providedModuleCode);
     void setGrade(std::string providedGrade);
+    void setPossibleDecisions(const ModuleCode* providedPossibleCode);
 
     //calculations
     std::vector<std::reference_wrapper<AssessmentAttempt>> getFinalattempts() const;

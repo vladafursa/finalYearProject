@@ -94,6 +94,11 @@ void ModuleAttempt::setFinalCode(const ModuleCode* providedModuleCode){
     finalCode=providedModuleCode;
 }
 
+void ModuleAttempt::setPossibleDecisions(const ModuleCode* providedPossibleCode){
+    posibleCodes.push_back(providedPossibleCode);
+}
+
+
 std::string ModuleAttempt::getGrade(){
     grade = gradeSystem.assignGrade(aggregate);
     return grade;
@@ -280,5 +285,6 @@ void ModuleAttempt::populatePossibleDecisions(){
         }
     }
 }
+
 
 

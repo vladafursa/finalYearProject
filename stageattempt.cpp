@@ -150,6 +150,42 @@ bool StageAttempt::checkAllModulesPassed() {
     return numberOfPassed == finalAttempts.size();
 }
 
+//determine which can be compensated
+void StageAttempt::determinCompensationPass(){
+    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    aggregate = calculateAggregate();
+    grade = gradeSystem.assignGrade(aggregate);
+    if (gradeSystem.isGreaterThanThreshold(grade, "3LOW") && !checkAllModulesPassed()){
+        for (const auto& attempt : finalAttempts){
+            if(attempt.get().getGrade()=="FMARG"){
+                if(attempt.get().getModule().getCredits()<remainingCompensationCredits){
+                    if(attempt.get().getType() == "original"){
+                        attempt.get().setPossibleDecisions(&ModuleCodes::PC);
+                    }
+                    else if (attempt.get().getType() == "referred"){
+                        attempt.get().setPossibleDecisions(&ModuleCodes::PR);
+                    }
+                    else{
+                        attempt.get().setPossibleDecisions(&ModuleCodes::PK);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void StageAttempt::applyCompensation(){
+    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    int limit =  stage.getLimitOfCredits();
+    for (const auto& attempt : finalAttempts) {
+        const ModuleCode* code = attempt.get().getFinalCode();
+        std::string stringCode = code->getCode();
+        if (stringCode == "PC" || stringCode == "PR" || stringCode == "PK"){
+            limit = limit - attempt.get().getModule().getCredits();
+        }
+    }
+    remainingCompensationCredits = limit;
+}
 
 
 

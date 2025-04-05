@@ -52,7 +52,8 @@ public:
     void generateCode();
     void populatePossibleDecisions();
     bool determinPass();
-    bool determinCompensationPass();
+    void determinCompensationPass();
+    void applyCompensation();
 };
 
 #endif // STAGEATTEMPT_H
