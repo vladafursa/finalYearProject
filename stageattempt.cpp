@@ -178,6 +178,7 @@ void StageAttempt::applyCompensation(){
     std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
     int limit =  stage.getLimitOfCredits();
     for (const auto& attempt : finalAttempts) {
+        attempt.get().setPassed(true);
         const ModuleCode* code = attempt.get().getFinalCode();
         std::string stringCode = code->getCode();
         if (stringCode == "PC" || stringCode == "PR" || stringCode == "PK"){
@@ -187,5 +188,12 @@ void StageAttempt::applyCompensation(){
     remainingCompensationCredits = limit;
 }
 
-
+void StageAttempt::applyMisconducts(){
+    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts){
+        if(attempt.get().getHadMisconduct() == true){
+             attempt.get().applyMisconduct();
+        }
+    }
+}
 

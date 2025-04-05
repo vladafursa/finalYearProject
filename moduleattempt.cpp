@@ -286,5 +286,30 @@ void ModuleAttempt::populatePossibleDecisions(){
     }
 }
 
+void ModuleAttempt::applyMisconduct(){
+    for (const auto& attempt : attempts){
+        if (attempt.get().getMisconduct()!=nullptr){
+            if (attempt.get().getMisconduct()->getOutcome()=="The module is capped at low 3"){
+                grade = "3LOW";
+                aggregate = 4;
+                if(passed == true){
+                    setFinalCode(&ModuleCodes::PB);
+                }
+            }
+            else{
+                grade = "ZERO";
+                aggregate = 0;
+                if(passed == true){
+                    setFinalCode(&ModuleCodes::PJ);
+                }
+                else{
+                    if(numberOfAttempt<2){
+                        setFinalCode(&ModuleCodes::FC);
+                    }
+                }
+            }
+        }
+    }
+}
 
 

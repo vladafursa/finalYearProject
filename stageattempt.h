@@ -54,6 +54,7 @@ public:
     bool determinPass();
     void determinCompensationPass();
     void applyCompensation();
+    void applyMisconducts();
 };
 
 #endif // STAGEATTEMPT_H

@@ -72,6 +72,7 @@ public:
     void populatePossibleDecisions();
     bool determinPass();
     bool determinSpecialPass();
+    void applyMisconduct();
 };
 
 #endif // MODULEATTEMPT_H
