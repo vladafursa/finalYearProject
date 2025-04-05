@@ -6,7 +6,8 @@
 #include "awardcode.h"
 #include "modulecode.h"
 #include "progressioncode.h"
-
+using namespace std;
+#include <set>
 
 //Module codes
 //Pass codes
@@ -53,7 +54,7 @@ const ModuleCode S3("1N", "First sit next academic year");
 const ModuleCode S4("1O", "First sit next opportunity");
 
 // Fail codes
-const ModuleCode F0("??", "Provisional fail");
+const ModuleCode FP("??", "Provisional fail");
 const ModuleCode F1("F?", "Fail after referral");
 const ModuleCode FA("FA", "Fail-repeat without attendance");
 const ModuleCode FN("FN", "Fail-no more attempts allowed");
@@ -69,6 +70,12 @@ const ModuleCode EB("EB", "Changed at Exam Board");
 // Withdrawn codes
 const ModuleCode WD("WD", "Withdrew");
 const ModuleCode WA("WA", "Replaced by alternative module to be added after Board");
+
+const std::set<const ModuleCode*> PASS_CODES = {
+    &PA, &PC, &PN, &PM, &PD, &PL, &PR, &PF, &PX, &PH, &PE, &PG,
+    &PQ, &PK, &PB, &PJ, &PO, &PT, &PV, &PY
+};
+
 }
 
 //Assessment codes

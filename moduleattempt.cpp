@@ -171,6 +171,8 @@ void ModuleAttempt::generateCode(){
     }
     else{
         passed = false;
+        setFinalCode(&ModuleCodes::FP);
+        creditsEarned = 0;
     }
 }
 
