@@ -41,8 +41,6 @@ const ModuleCode RK("RK", "Referred by coursework");
 const ModuleCode RT("RT", "Referred by test");
 const ModuleCode RM("RM", "Referred – contact Module Leader");
 const ModuleCode RW("RW", "Referred by reworking exam");
-//const ModuleCode RF("RF", "Referred – final attempt");
-//const ModuleCode RN("RN", "Referred next academic year");
 
 // Defer codes
 const ModuleCode DF("DF", "Defer");

@@ -17,7 +17,8 @@ SOURCES += \
         modulecode.cpp \
         nec.cpp \
         progressioncode.cpp \
-        stage.cpp
+        stage.cpp \
+        stageattempt.cpp
 
 LIBS += -lboost_unit_test_framework
 
@@ -41,4 +42,5 @@ HEADERS += \
     modulecode.h \
     nec.h \
     progressioncode.h \
-    stage.h
+    stage.h \
+    stageattempt.h

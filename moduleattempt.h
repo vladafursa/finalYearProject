@@ -19,11 +19,12 @@ private:
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
     bool hadNec;
     bool hadMisconduct;
+    bool submittedLate;
     double aggregate;
     bool passed;
     int creditsEarned;
     const ModuleCode* finalCode;
-    std::vector<ModuleCode*> posibleCodes;
+    std::vector<const ModuleCode*> posibleCodes;
     Grades gradeSystem;
     std::string grade;
 public:
@@ -45,9 +46,10 @@ public:
     bool getPassed() const;
     int getCreditsEarned() const;
     const ModuleCode* getFinalCode() const;
-    const std::vector<ModuleCode*>& getPossibleCodes() const;
+    const std::vector<const ModuleCode*>& getPossibleCodes() const;
     std::string getGrade();
     bool getHadMisconduct();
+    bool getSubmittedLate();
 
     //setters
     void setStudentNumber(std::string providedStudentNumber);
@@ -59,7 +61,6 @@ public:
     void setPassed(bool providedPassed);
     void setCreditsEarned(int providedCreditsEarned);
     void setFinalCode(const ModuleCode* providedModuleCode);
-    void setPossibleCodes(std::vector<ModuleCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
 
     //calculations

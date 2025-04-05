@@ -1,5 +1,5 @@
 #include "moduleattempt.h"
-
+#include "CodeConstants.h"
 //constructor
 ModuleAttempt::ModuleAttempt(std::string providedStudentNumber,
               const Module& providedModule,
@@ -53,7 +53,7 @@ const ModuleCode* ModuleAttempt::getFinalCode() const{
     return finalCode;
 }
 
-const std::vector<ModuleCode*>& ModuleAttempt::getPossibleCodes() const{
+const std::vector<const ModuleCode*>& ModuleAttempt::getPossibleCodes() const{
     return posibleCodes;
 }
 
@@ -92,10 +92,6 @@ void ModuleAttempt::setCreditsEarned(int providedCreditsEarned){
 
 void ModuleAttempt::setFinalCode(const ModuleCode* providedModuleCode){
     finalCode=providedModuleCode;
-}
-
-void ModuleAttempt::setPossibleCodes(std::vector<ModuleCode*>& providedPosibleCodes){
-    posibleCodes=providedPosibleCodes;
 }
 
 std::string ModuleAttempt::getGrade(){
@@ -166,15 +162,49 @@ bool ModuleAttempt::checkAllElementsPassed(){
 void ModuleAttempt::generateCode(){
     if (checkAllElementsPassed() || determinSpecialPass()){
         passed = true;
-        setFinalCode(&ModuleCodes::PA);
         creditsEarned=module.getCredits();
+        if (numberOfAttempt >= 2){
+            setFinalCode(&ModuleCodes::PX);
+        }
+
+        else if (type == "refered") {
+            setFinalCode(&ModuleCodes::PR);
+        }
+        else if (type == "repeated") {
+            setFinalCode(&ModuleCodes::PF);
+        }
+        else if (getSubmittedLate()){
+            setFinalCode(&ModuleCodes::PL);
+        }
+        else{
+            setFinalCode(&ModuleCodes::PA);
+        }
     }
     else{
         passed = false;
-        setFinalCode(&ModuleCodes::FP);
         creditsEarned = 0;
+        if (numberOfAttempt == 2){
+            if (getHadNec() == false){
+                setFinalCode(&ModuleCodes::FN);
+            }
+            else{
+                if (type == "referred"){
+                    setFinalCode(&ModuleCodes::F1);
+                }
+                else{
+                    setFinalCode(&ModuleCodes::FP);
+                }
+            }
+        }
+        else if (numberOfAttempt > 2){
+                setFinalCode(&ModuleCodes::FN);
+        }
+        else{
+                setFinalCode(&ModuleCodes::FP);
+        }
     }
 }
+
 
 bool ModuleAttempt::determinSpecialPass(){
     bool canPass = false;
@@ -206,7 +236,49 @@ bool ModuleAttempt::getHadMisconduct(){
     return hadMisconduct;
 }
 
+bool ModuleAttempt::getSubmittedLate(){
+    submittedLate = false;
+    for (const auto& attempt : attempts){
+        if (attempt.get().isSubmittedLate() == true){
+            hadMisconduct = true;
+        }
+    }
+    return hadMisconduct;
+}
 
-void populatePossibleDecisions();
+
+void ModuleAttempt::populatePossibleDecisions(){
+    if (module.getType() == "optional"){
+            posibleCodes.push_back(&ModuleCodes::FO);
+    }
+
+    int notPassed = 0;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+            std::string grade = attempt.get().getGrade();
+            if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+            notPassed++;
+        }
+    }
+    if (notPassed>1){
+        posibleCodes.push_back(&ModuleCodes::FA);
+        posibleCodes.push_back(&ModuleCodes::FR);
+        posibleCodes.push_back(&ModuleCodes::FM);
+    }
+    else{
+        if(notPassed!=finalAttempts.size()){
+            posibleCodes.push_back(&ModuleCodes::RR);
+        }
+    }
+    posibleCodes.push_back(&ModuleCodes::DF);
+    if (getHadNec() == true){
+        for (const auto& attempt : finalAttempts) {
+            if (attempt.get().getGradePoints() == 0){
+                 posibleCodes.push_back(&ModuleCodes::S1);
+                break;
+            }
+        }
+    }
+}
 
 
