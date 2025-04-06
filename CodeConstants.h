@@ -74,6 +74,14 @@ const std::set<const ModuleCode*> PASS_CODES = {
     &PQ, &PK, &PB, &PJ, &PO, &PT, &PV, &PY
 };
 
+const std::set<const ModuleCode*> FIRST_SIT_CODES = {
+    &S1, &S2, &S3, &S4
+};
+
+const std::set<const ModuleCode*> FAIL_CODES = {
+    &FP, &F1, &FA, &FN, &FR, &FC, &FM, &F0
+};
+
 }
 
 //Assessment codes
