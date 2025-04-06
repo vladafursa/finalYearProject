@@ -18,6 +18,7 @@ SOURCES += moduletests.cpp \
         ../progressioncode.cpp \
         ../grades.cpp \
         gradesystemtests.cpp \
+        stagetests.cpp \
         testmain.cpp
 
 LIBS += -lboost_unit_test_framework
