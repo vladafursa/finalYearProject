@@ -30,9 +30,10 @@ const Misconduct m1("1", "T1", "serious", "The module is capped at low 3");
 const Misconduct m2("1", "T1", "serious", "The module is set to 0");
 
 //defining assessment attempts
-AssessmentAttempt normalAttemptCoursework("T1", cwk1, 1, "original", false, 10);
+AssessmentAttempt goodAttemptCoursework("T1", cwk1, 1, "original", false, 10);
+AssessmentAttempt submittedLateCoursework("T1", cwk1, 1, "original", true, 4);
 AssessmentAttempt failAttemptCoursework("T1", cwk2, 1, "original", false, 2);
-AssessmentAttempt repeatAttemptCoursework("T1", cwk2, 2, "original", false, 12);
+AssessmentAttempt repeatAttemptCoursework("T1", cwk2, 2, "referred", false, 12);
 AssessmentAttempt attemptExam("T1", ex1, 1, "original", false, 3);
 AssessmentAttempt failAttemptExam("T1", ex1, 2, "original", false, 8);
 AssessmentAttempt goodAttemptExam("T1", ex1, 1, "original", false, 9);
@@ -40,6 +41,7 @@ AssessmentAttempt neutralAttemptExam("T1", ex1, 1, "original", false, 5);
 AssessmentAttempt attemptMisconductCoursework("T1", cwk3, 1, "original", false, 10, nullptr, nullptr, &m1);
 AssessmentAttempt attemptSeriousMisconductCoursework("T1", cwk3, 1, "original", false, 10, nullptr, nullptr, &m2);
 AssessmentAttempt attemptSeriousMisconductNotPassCoursework("T1", cwk3, 1, "original", false, 1, nullptr, nullptr, &m2);
+
 
 BOOST_AUTO_TEST_SUITE( moduleTests )
 
@@ -60,7 +62,7 @@ BOOST_AUTO_TEST_CASE(allFirstTryTest) {
     assessmentList1.emplace(std::ref(ex1), 40);
     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(normalAttemptCoursework);
+    attempts.push_back(goodAttemptCoursework);
     attempts.push_back(attemptExam);
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
 
@@ -144,7 +146,7 @@ BOOST_AUTO_TEST_CASE(checkNormalAggregatelTest) {
     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(normalAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptCoursework));
     attempts.push_back(std::ref(attemptExam));
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -163,7 +165,7 @@ BOOST_AUTO_TEST_CASE(unusualPercentageTest) {
      Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
      std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-     attempts.push_back(std::ref(normalAttemptCoursework));
+     attempts.push_back(std::ref(goodAttemptCoursework));
      attempts.push_back(std::ref(attemptExam));
 
      ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -181,7 +183,7 @@ BOOST_AUTO_TEST_CASE(roundingUpTest) {
      Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
      std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-     attempts.push_back(std::ref(normalAttemptCoursework));
+     attempts.push_back(std::ref(goodAttemptCoursework));
      attempts.push_back(std::ref(attemptExam));
 
      ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -201,7 +203,7 @@ BOOST_AUTO_TEST_CASE(allPassedTest) {
      Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
      std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-     attempts.push_back(std::ref(normalAttemptCoursework));
+     attempts.push_back(std::ref(goodAttemptCoursework));
      attempts.push_back(std::ref(goodAttemptExam));
 
      ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -221,7 +223,7 @@ BOOST_AUTO_TEST_CASE(oneNotPassTest) {
     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(normalAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptCoursework));
     attempts.push_back(std::ref(attemptExam));
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -282,7 +284,7 @@ BOOST_AUTO_TEST_CASE(specialPassTest) {
     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(normalAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptCoursework));
     attempts.push_back(std::ref(attemptExam));
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -351,7 +353,7 @@ BOOST_AUTO_TEST_CASE(noMisconductTest) {
     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
 
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(normalAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptCoursework));
     attempts.push_back(std::ref(attemptExam));
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
@@ -431,6 +433,110 @@ BOOST_AUTO_TEST_CASE(notPassAddCreditsOnlyMisconductTest) {
 }
 
 
+BOOST_AUTO_TEST_CASE(usualPassDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk1), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(goodAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PA";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(referredPassDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk2), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(repeatAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "refered", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PR";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(repeatedPassDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk2), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(repeatAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "repeated", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PF";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(repeatedAndRepeatedPassDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk2), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(repeatAttemptCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 3, "repeated", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PX";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(submittedLatePassDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk1), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(submittedLateCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PL";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
