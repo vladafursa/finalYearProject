@@ -168,10 +168,9 @@ void ModuleAttempt::generateCode(){
     if (checkAllElementsPassed() || determinSpecialPass()){
         passed = true;
         creditsEarned=module.getCredits();
-        if (numberOfAttempt >= 2){
+        if (numberOfAttempt > 2){
             setFinalCode(&ModuleCodes::PX);
         }
-
         else if (type == "refered") {
             setFinalCode(&ModuleCodes::PR);
         }
