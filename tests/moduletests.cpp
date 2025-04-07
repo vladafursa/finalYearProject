@@ -26,7 +26,8 @@ const Assessment ex3("23", "exam", "check knowledge about cloud computing");
 
 
 //misconducts
-const Misconduct m1("1", "T1", "serious", "3LOW");
+const Misconduct m1("1", "T1", "serious", "The module is capped at low 3");
+const Misconduct m2("1", "T1", "serious", "The module is set to 0");
 
 //defining assessment attempts
 AssessmentAttempt normalAttemptCoursework("T1", cwk1, 1, "original", false, 10);
@@ -36,8 +37,9 @@ AssessmentAttempt attemptExam("T1", ex1, 1, "original", false, 3);
 AssessmentAttempt failAttemptExam("T1", ex1, 2, "original", false, 8);
 AssessmentAttempt goodAttemptExam("T1", ex1, 1, "original", false, 9);
 AssessmentAttempt neutralAttemptExam("T1", ex1, 1, "original", false, 5);
-AssessmentAttempt attemptMisconductCoursework("T1", cwk3, 1, "original", false, 3, nullptr, nullptr, &m1);
-
+AssessmentAttempt attemptMisconductCoursework("T1", cwk3, 1, "original", false, 10, nullptr, nullptr, &m1);
+AssessmentAttempt attemptSeriousMisconductCoursework("T1", cwk3, 1, "original", false, 10, nullptr, nullptr, &m2);
+AssessmentAttempt attemptSeriousMisconductNotPassCoursework("T1", cwk3, 1, "original", false, 1, nullptr, nullptr, &m2);
 
 BOOST_AUTO_TEST_SUITE( moduleTests )
 
@@ -293,6 +295,142 @@ BOOST_AUTO_TEST_CASE(specialPassTest) {
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
+
+//applyMisconduct
+BOOST_AUTO_TEST_CASE(cap3MisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk3), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(attemptMisconductCoursework));
+    attempts.push_back(std::ref(attemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualGrade = moduleAttempt1.getGrade();
+    std::string expectedGrade = "3LOW";
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PB";
+
+
+    BOOST_CHECK_EQUAL(actualGrade, expectedGrade);
+
+}
+
+//cap 0 misconduct
+BOOST_AUTO_TEST_CASE(cap0MisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk3), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(attemptSeriousMisconductCoursework));
+    attempts.push_back(std::ref(attemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualGrade = moduleAttempt1.getGrade();
+    std::string expectedGrade = "ZERO";
+
+    BOOST_CHECK_EQUAL(actualGrade, expectedGrade);
+
+}
+
+BOOST_AUTO_TEST_CASE(noMisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk1), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(normalAttemptCoursework));
+    attempts.push_back(std::ref(attemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualGrade = moduleAttempt1.getGrade();
+    std::string expectedGrade = "22LOW";
+
+    BOOST_CHECK_EQUAL(actualGrade, expectedGrade);
+
+}
+
+//generating codes
+BOOST_AUTO_TEST_CASE(passCappedMisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk3), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(attemptMisconductCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PB";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(passAddCreditsOnlyMisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk3), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(attemptSeriousMisconductCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PJ";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(notPassAddCreditsOnlyMisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(std::ref(cwk3), 60);
+    assessmentList1.emplace(std::ref(ex1), 40);
+    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+
+    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    attempts.push_back(std::ref(attemptSeriousMisconductNotPassCoursework));
+    attempts.push_back(std::ref(goodAttemptExam));
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+    moduleAttempt1.applyMisconduct();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "FC";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
