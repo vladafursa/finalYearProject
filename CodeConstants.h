@@ -77,10 +77,14 @@ const std::set<const ModuleCode*> PASS_CODES = {
 const std::set<const ModuleCode*> FIRST_SIT_CODES = {
     &S1, &S2, &S3, &S4
 };
+const std::set<const ModuleCode*> REFERRED_CODES = {
+    &RR, &RE, &RK, &RT, &RM, &RW
+};
 
 const std::set<const ModuleCode*> FAIL_CODES = {
-    &FP, &F1, &FA, &FN, &FR, &FC, &FM, &F0
+    &FP, &F1, &FA, &FN, &FR, &FC, &FM, &FO
 };
+
 
 }
 
