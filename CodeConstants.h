@@ -139,6 +139,10 @@ const AssessmentCode RC("RC", "Re-calculated");
 
 // Withdrawn codes
 const AssessmentCode WD("WD", "Withdrew");
+
+const std::set<const AssessmentCode*> FIRST_SIT_CODES = {
+    &S1, &S2, &S3, &S4
+};
 }
 
 //Progression codes
