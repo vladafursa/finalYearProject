@@ -17,7 +17,6 @@ class Module
 private:
     std::string code;
     std::string name;
-    std::string year;
     std::string type;
     int credits;
     AssessmentWeightsMap assessmentsWithWeights;
@@ -25,7 +24,6 @@ private:
 public:
     Module(std::string providedCode,
            std::string providedName,
-           std::string providedYear,
            std::string providedType,
            int providedCredits,
            AssessmentWeightsMap providedAssessmentWeights);
@@ -33,7 +31,6 @@ public:
     //getters
     std::string getCode() const;
     std::string getName() const;
-    std::string getYear() const;
     std::string getType() const;
     int getCredits() const;
     const AssessmentWeightsMap & getAssessmentsWithWeights() const;
@@ -41,7 +38,6 @@ public:
     // setters
     void setCode(std::string providedCode);
     void setName(std::string providedName);
-    void setYear(std::string providedYear);
     void setType(std::string providedType);
     void setCredits(int providedCredits);
     void setAssessmentWeights(AssessmentWeightsMap& providedAssessmentWeights);

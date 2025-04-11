@@ -3,14 +3,12 @@
 
 Module::Module(std::string providedCode,
                      std::string providedName,
-                     std::string providedYear,
                      std::string providedType,
                      int providedCredits,
                      AssessmentWeightsMap providedAssessmentWeights){
 
     code = providedCode;
     name = providedName;
-    year = providedYear;
     type = providedType;
     credits = providedCredits;
     assessmentsWithWeights = providedAssessmentWeights;
@@ -23,10 +21,6 @@ std::string Module::getCode() const{
 
 std::string Module::getName() const{
     return name;
-}
-
-std::string Module::getYear() const{
-    return year;
 }
 
 std::string Module::getType() const{
@@ -48,10 +42,6 @@ void Module::setCode(std::string providedCode){
 
 void Module::setName(std::string providedName){
     name = providedName;
-}
-
-void Module::setYear(std::string providedYear){
-    year = providedYear;
 }
 
 void Module::setType(std::string providedType){
