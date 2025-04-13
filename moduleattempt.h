@@ -17,7 +17,6 @@ private:
     int numberOfAttempt;
     std::string type;
     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    bool hadNec;
     bool hadMisconduct;
     bool submittedLate;
     double aggregate;
@@ -56,7 +55,6 @@ public:
     void setNumberOfAttempt(int providedNumberOfAttempt);
     void setType(std::string providedType);
     void setAtempts(std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts);
-    void setHadNec(bool providedHadNec);
     void setAggregate(double providedAggregate);
     void setPassed(bool providedPassed);
     void setCreditsEarned(int providedCreditsEarned);
@@ -73,6 +71,11 @@ public:
     bool determinPass();
     bool determinSpecialPass();
     void applyMisconduct();
+    void referElements();
+    void failElements();
+    void transferMisconduct();
+    int numberOfNotPassed();
+    std::vector<std::reference_wrapper<AssessmentAttempt>> getLatestAttempts() const;
 };
 
 #endif // MODULEATTEMPT_H

@@ -9,6 +9,9 @@ SOURCES += \
         assessmentcode.cpp \
         awardcode.cpp \
         code.cpp \
+        course.cpp \
+        courseattempt.cpp \
+        examboard.cpp \
         grades.cpp \
         main.cpp \
         misconduct.cpp \
@@ -18,7 +21,8 @@ SOURCES += \
         nec.cpp \
         progressioncode.cpp \
         stage.cpp \
-        stageattempt.cpp
+        stageattempt.cpp \
+        student.cpp
 
 LIBS += -lboost_unit_test_framework
 
@@ -35,6 +39,9 @@ HEADERS += \
     assessmentcode.h \
     awardcode.h \
     code.h \
+    course.h \
+    courseattempt.h \
+    examboard.h \
     grades.h \
     misconduct.h \
     module.h \
@@ -43,4 +50,11 @@ HEADERS += \
     nec.h \
     progressioncode.h \
     stage.h \
-    stageattempt.h
+    stageattempt.h \
+    student.h
+
+
+INCLUDEPATH += /opt/homebrew/include
+LIBS += -L/opt/homebrew/lib -lpqxx -L/opt/homebrew/opt/libpq/lib -lpq
+
+

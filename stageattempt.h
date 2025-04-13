@@ -13,7 +13,7 @@ private:
     bool passed;
     int creditsEarned;
     const ProgressionCode* finalCode;
-    std::vector<ProgressionCode*> posibleCodes;
+    std::vector<const ProgressionCode*> posibleCodes;
     Grades gradeSystem;
     std::string grade;
     int remainingCompensationCredits;
@@ -28,9 +28,9 @@ public:
     const std::vector<std::reference_wrapper<ModuleAttempt>>& getAttempts() const;
     double getAggregate() const;
     bool getPassed() const;
-    int getCreditsEarned() const;
+    int getCreditsEarned();
     const ProgressionCode* getFinalCode() const;
-    const std::vector<ProgressionCode*>& getPossibleCodes() const;
+    const std::vector<const ProgressionCode*>& getPossibleCodes() const;
     std::string getGrade();
     int getRemainingCompensationCredits() const;
 
@@ -41,7 +41,7 @@ public:
     void setPassed(bool providedPassed);
     void setCreditsEarned(int providedCreditsEarned);
     void setFinalCode(const ProgressionCode* providedProgressionCode);
-    void setPossibleCodes(std::vector<ProgressionCode*>& providedPosibleCodes);
+    void setPossibleCodes( std::vector<const ProgressionCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
     void setRemainingCompensationCredits(int providedRemainingCredits);
 
@@ -55,6 +55,9 @@ public:
     void determinCompensationPass();
     void applyCompensation();
     void applyMisconducts();
+    int checkReferred();
+    int checkFirstSeats() ;
+    int checkFail() ;
 };
 
 #endif // STAGEATTEMPT_H

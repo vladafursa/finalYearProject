@@ -17,6 +17,7 @@ SOURCES += moduletests.cpp \
         ../nec.cpp \
         ../progressioncode.cpp \
         ../grades.cpp \
+        coursetests.cpp \
         gradesystemtests.cpp \
         stagetests.cpp \
         testmain.cpp
@@ -29,3 +30,7 @@ macx{
 }
 
 INCLUDEPATH += ../
+
+HEADERS += \
+    coursetests.h
+#add h files

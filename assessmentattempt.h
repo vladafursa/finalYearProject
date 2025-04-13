@@ -21,20 +21,23 @@ private:
     std::string grade;
     //optional
     const AssessmentCode* code;
+    std::vector<const AssessmentCode*> posibleCodes;
     const NEC* nec;
     const Misconduct* misconduct;
     Grades gradeSystem;
+    const Assessment* originalAttempt;
 public:
     //constructors
     AssessmentAttempt(std::string providedStudentNumber,
             const Assessment& providedAssessment,
             int providedNumberOfAttempt,
-            std::string providedType,
             bool providedSubmittedLate,
             int providedGradePoints,
             const AssessmentCode* providedCode = nullptr,//optional
             const NEC* providedNec = nullptr,//optional
-            const Misconduct* providedMisconduct = nullptr);//optional
+            const Misconduct* providedMisconduct = nullptr,
+            const Assessment* providedOriginalAttempt = nullptr);//optional
+
     //getters
     std::string getStudentNumber() const;
     const Assessment& getAssessment() const;
@@ -46,6 +49,7 @@ public:
     const AssessmentCode* getCode() const;
     const NEC* getNec() const;
     const Misconduct* getMisconduct() const;
+    const std::vector<const AssessmentCode*>& getPossibleCodes() const;
 
     //setters
     void setStudentNumber(const std::string providedStudentNumber);
@@ -57,6 +61,9 @@ public:
     void setCode(const AssessmentCode* providedCode);
     void setNec(const NEC* providedNec);
     void setMisconduct(const Misconduct* providedMisconduct);
+    void setPossibleDecisions(const  AssessmentCode* providedPossibleCode);
+    void applyMisconduct();
+    void populatePossibleDecisions();
 };
 
 #endif // ASSESSMENTATTEMPT_H

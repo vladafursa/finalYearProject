@@ -6,10 +6,43 @@
 #include "misconduct.h"
 #include "stage.h"
 #include "stageattempt.h"
+#include "examboard.h"
 using namespace std;
+
 
 int main()
 {
+    examBoard exboard;
+    exboard.retrieveAssessments();
+    std::vector<Student> students = exboard.retrieveStudents();
+
+    for (const auto& student : students) {
+        std::cout << student.getStudentNumber()<<std::endl;
+        std::vector<AssessmentAttempt> attempts = exboard.retrieveAssessmentAttemptsForStudent(student.getStudentNumber());
+        for (const auto& attempt : attempts){
+            std::cout<<attempt.getAssessment().getId()<<"   "<<attempt.getGradePoints()<<std::endl;
+        }
+    }
+
+}
+
+/*
+ *   std::cout<<"Student table"<<std::endl;
+    std::cout<<"Student Number            "<<"Name  "<<"Name      "<<"Course"<<std::endl;
+    for (const auto& student : students) {
+        std::cout << student.getStudentNumber()<<"       "<< student.getName()<<"       "<< student.getCourse()<<"      "<<student.getDateEnrolled()<<"     "<<student.isFullyEnrolled()<< std::endl;
+    }
+ *
+ * //Assessment table
+ *  std::cout<<"Assessment table"<<std::endl;
+    std::cout<<"ID            "<<"Type      "<<"Name      "<<std::endl;
+    for (const auto& assessment : assessments) {
+        std::cout << assessment.getId()<<"    "<< assessment.getType()<<"    "<< assessment.getName() << std::endl;
+    }
+
+*/
+/*
+
     Assessment coursework("1","coursework","coding classes");
     Assessment exam("2", "exam", "check knowledge about classes");
     Misconduct m1("1", "T1", "serious", "low3");
@@ -60,4 +93,7 @@ int main()
     StageAttempt stAttempt1("T1", stage1, moduleAttempts);
     std::cout<<"passed stage: "<<stAttempt1.checkAllModulesPassed();
     return 0;
+
 }
+
+*/

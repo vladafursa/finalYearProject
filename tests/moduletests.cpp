@@ -538,6 +538,81 @@ BOOST_AUTO_TEST_CASE(submittedLatePassDecisionTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
+/*
+ *
+ * void ModuleAttempt::populatePossibleDecisions(){
+    if (module.getType() == "optional"){
+            posibleCodes.push_back(&ModuleCodes::FO);
+    }
+
+    int notPassed = 0;
+    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+            std::string grade = attempt.get().getGrade();
+            if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+            notPassed++;
+        }
+    }
+    if (notPassed>1){
+        posibleCodes.push_back(&ModuleCodes::FA);
+        posibleCodes.push_back(&ModuleCodes::FR);
+        posibleCodes.push_back(&ModuleCodes::FM);
+    }
+    else{
+        if(notPassed!=finalAttempts.size()){
+            posibleCodes.push_back(&ModuleCodes::RR);
+        }
+    }
+    posibleCodes.push_back(&ModuleCodes::DF);
+    if (getHadNec() == true){
+        for (const auto& attempt : finalAttempts) {
+            if (attempt.get().getGradePoints() == 0){
+                 posibleCodes.push_back(&ModuleCodes::S1);
+                break;
+            }
+        }
+    }
+}
+
+
+void ModuleAttempt::generateCode(){
+    if (checkAllElementsPassed() || determinSpecialPass()){
+        passed = true;
+        creditsEarned=module.getCredits();
+
+        else if (getSubmittedLate()){
+            setFinalCode(&ModuleCodes::PL);
+        }
+        else{
+            setFinalCode(&ModuleCodes::PA);
+        }
+    }
+    else{
+        passed = false;
+        creditsEarned = 0;
+        if (numberOfAttempt == 2){
+            if (getHadNec() == false){
+                setFinalCode(&ModuleCodes::FN);
+            }
+            else{
+                if (type == "referred"){
+                    setFinalCode(&ModuleCodes::F1);
+                }
+                else{
+                    setFinalCode(&ModuleCodes::FP);
+                }
+            }
+        }
+        else if (numberOfAttempt > 2){
+                setFinalCode(&ModuleCodes::FN);
+        }
+        else{
+                setFinalCode(&ModuleCodes::FP);
+        }
+    }
+}
+*/
+
 BOOST_AUTO_TEST_SUITE_END()
 
 /*
