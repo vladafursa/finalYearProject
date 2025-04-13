@@ -34,6 +34,35 @@ std::vector<Assessment> examBoard::retrieveAssessments() {
     return assessments;
 }
 
+std::vector<Module> examBoard::retrieveModules(){
+    try {
+        pqxx::connection conn("dbname=examinationboard user=master password=password host=board.cv2888uq44nv.eu-north-1.rds.amazonaws.com port=5432");
+
+        if (conn.is_open()) {
+            pqxx::nontransaction txn(conn);
+
+            pqxx::result result = txn.exec("SELECT * FROM module");
+
+            assessments.reserve(result.size());
+
+            for (const auto& row : result) {
+                std::string code = row["code"].c_str();
+                std::string name = row["name"].c_str();
+                int credits = row["credits"].as<int>();
+
+                modules.emplace_back(code, name, credits);
+            }
+        } else {
+            std::cerr << "Connection to database failed." << std::endl;
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return modules;
+
+}
+
  const Assessment& examBoard::retrieveAssessmentByID(std::string providedID) {
 
     auto it = std::find_if(assessments.begin(), assessments.end(), [&providedID](const Assessment& a) {

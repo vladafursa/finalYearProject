@@ -3,17 +3,11 @@
 
 Module::Module(std::string providedCode,
                      std::string providedName,
-                     std::string providedYear,
-                     std::string providedType,
-                     int providedCredits,
-                     AssessmentWeightsMap providedAssessmentWeights){
+                     int providedCredits){
 
     code = providedCode;
     name = providedName;
-    year = providedYear;
-    type = providedType;
     credits = providedCredits;
-    assessmentsWithWeights = providedAssessmentWeights;
 }
 
 //getters

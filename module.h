@@ -25,10 +25,7 @@ private:
 public:
     Module(std::string providedCode,
            std::string providedName,
-           std::string providedYear,
-           std::string providedType,
-           int providedCredits,
-           AssessmentWeightsMap providedAssessmentWeights);
+           int providedCredits);
 
     //getters
     std::string getCode() const;
