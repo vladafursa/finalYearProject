@@ -14,15 +14,12 @@ int main()
 {
     examBoard exboard;
     exboard.retrieveAssessments();
+    exboard.retrieveModules();
+    std::cout<<exboard.retrieveModuleType("N111111", "CS101");
+
+
 
     std::vector<Student> students = exboard.retrieveStudents();
-    std::vector<Module> modules =  exboard.retrieveModules();
-
-    std::cout<<"Assessment table"<<std::endl;
-    std::cout<<"code            "<<"name     "<<"credits     "<<std::endl;
-    for (const auto& module : modules) {
-        std::cout <<module.getCode() <<"    "<< module.getName()<<"    "<< module.getCredits() << std::endl;
-    }
 
     for (const auto& student : students) {
         std::cout << student.getStudentNumber()<<std::endl;
@@ -35,6 +32,17 @@ int main()
 }
 
 /*
+ *
+ *
+ *     std::vector<Module> modules =  exboard.retrieveModules();
+
+    std::cout<<"Assessment table"<<std::endl;
+    std::cout<<"code            "<<"name     "<<"credits     "<<std::endl;
+    for (const auto& module : modules) {
+        std::cout <<module.getCode() <<"    "<< module.getName()<<"    "<< module.getCredits() << std::endl;
+    }
+
+
  *   std::cout<<"Student table"<<std::endl;
     std::cout<<"Student Number            "<<"Name  "<<"Name      "<<"Course"<<std::endl;
     for (const auto& student : students) {

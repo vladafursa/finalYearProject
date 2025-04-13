@@ -31,7 +31,6 @@ public:
     ModuleAttempt(std::string providedStudentNumber,
                   const Module& providedModule,
                   int providedNumberOfAttempt,
-                  std::string providedType,
                   std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts);
 
     //getters

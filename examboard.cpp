@@ -72,6 +72,47 @@ std::vector<Module> examBoard::retrieveModules(){
 
 }
 
+
+ const Module& examBoard::retrieveModuleByCode(std::string providedCode){
+    auto it = std::find_if(modules.begin(), modules.end(), [&providedCode](const Module& m) {
+        return m.getCode() == providedCode;
+    });
+    return *it;
+ }
+
+
+
+ std::string examBoard::retrieveModuleType(std::string studentNumber, std::string moduleCode){
+    std::string optionality;
+    try {
+        pqxx::connection conn("dbname=examinationboard user=master password=password host=board.cv2888uq44nv.eu-north-1.rds.amazonaws.com port=5432");
+
+        if (conn.is_open()) {
+            pqxx::nontransaction txn(conn);
+
+            pqxx::result result = txn.exec_params(
+                "SELECT mc.optionality "
+                "FROM moduleCourse mc "
+                "JOIN student st ON st.course = mc.courseCode "
+                "JOIN moduleAttempt ma ON ma.studentNumber = st.studentNumber "
+                "AND ma.code = mc.moduleCode "
+                "WHERE ma.code = $1 AND ma.studentNumber = $2;",
+                moduleCode, studentNumber
+                );
+            optionality = result[0]["optionality"].c_str();
+
+        } else {
+            std::cerr << "Connection to database failed." << std::endl;
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return optionality;
+ }
+
+
+
  std::vector<AssessmentAttempt> examBoard::retrieveAssessmentAttemptsForStudent(std::string studentNumber) {
      std::vector<AssessmentAttempt> attempts;
     try {

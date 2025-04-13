@@ -4,11 +4,9 @@
 ModuleAttempt::ModuleAttempt(std::string providedStudentNumber,
               const Module& providedModule,
               int providedNumberOfAttempt,
-              std::string providedType,
-                             std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts):module(providedModule){
+              std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts):module(providedModule){
     studentNumber = providedStudentNumber;
     numberOfAttempt = providedNumberOfAttempt;
-    type = providedType;
     attempts = providedAttempts;
 }
 

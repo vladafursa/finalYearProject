@@ -22,6 +22,8 @@ public:
     std::vector<Student> retrieveStudents();
     std::vector<Module> retrieveModules();
     const Assessment& retrieveAssessmentByID(std::string providedID);
+    const Module& retrieveModuleByCode(std::string providedCode);
+    std::string retrieveModuleType(std::string studentNumber, std::string moduleCode);
     std::vector<AssessmentAttempt> retrieveAssessmentAttemptsForStudent(std::string studentNumber);
 };
 
