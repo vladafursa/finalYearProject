@@ -22,7 +22,8 @@ SOURCES += \
         progressioncode.cpp \
         stage.cpp \
         stageattempt.cpp \
-        student.cpp
+        student.cpp \
+        studentrecord.cpp
 
 LIBS += -lboost_unit_test_framework
 
@@ -51,7 +52,8 @@ HEADERS += \
     progressioncode.h \
     stage.h \
     stageattempt.h \
-    student.h
+    student.h \
+    studentrecord.h
 
 
 INCLUDEPATH += /opt/homebrew/include

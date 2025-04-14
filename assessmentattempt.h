@@ -19,6 +19,7 @@ private:
     bool submittedLate;
     int gradePoints;
     std::string grade;
+    const AssessmentCode* finalCode;
     //optional
     const AssessmentCode* code;
     std::vector<const AssessmentCode*> posibleCodes;
@@ -42,10 +43,11 @@ public:
     std::string getStudentNumber() const;
     const Assessment& getAssessment() const;
     int getNumberOfAttempt() const;
-    std::string getType() const;
+    std::string getType();
     bool isSubmittedLate() const;
     int getGradePoints() const;
     std::string getGrade();
+    const AssessmentCode* getGinalCode() const;
     const AssessmentCode* getCode() const;
     const NEC* getNec() const;
     const Misconduct* getMisconduct() const;
@@ -59,6 +61,7 @@ public:
     void setGradePoints(int providedGradePoints);
     void setGrade(std::string providedGrade);
     void setCode(const AssessmentCode* providedCode);
+    void setFinalCode(const AssessmentCode* providedCode);
     void setNec(const NEC* providedNec);
     void setMisconduct(const Misconduct* providedMisconduct);
     void setPossibleDecisions(const  AssessmentCode* providedPossibleCode);

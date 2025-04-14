@@ -107,67 +107,77 @@ std::string ModuleAttempt::getGrade(){
 //calculations
 //best ones
 //getting only latest attempts
-/*
-std::vector<std::reference_wrapper<AssessmentAttempt>> ModuleAttempt::getLatestAttempts() const {
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts;
+
+std::vector<std::shared_ptr<AssessmentAttempt>> ModuleAttempt::getLatestAttempts() const {
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts;
     const auto& assessments = module.getAssessmentsWithWeights();
-    const auto& assessmentsAttempts = getAttempts();
+    const auto& assessmentAttempts = getAttempts();
 
     for (const auto& assessment : assessments) {
-        std::string assessmentId = assessment.first.get().getId();
-        AssessmentAttempt* latestAttempt = nullptr;
+        std::string assessmentId = assessment.first.getId();
+        std::shared_ptr<AssessmentAttempt> latestAttempt = nullptr;
         int maxNumberOfAttempt = 0;
 
-        for (const auto& attempt : assessmentsAttempts) {
-            std::string attemptAssessmentId = attempt.get().getAssessment().getId();
-            int numberOfAssessmentAttempt = attempt.get().getNumberOfAttempt();
+        for (const auto& attempt : assessmentAttempts) {
+            std::string attemptAssessmentId = attempt->getAssessment().getId();
+            int numberOfAssessmentAttempt = attempt->getNumberOfAttempt();
 
             if (attemptAssessmentId == assessmentId && numberOfAssessmentAttempt > maxNumberOfAttempt) {
                 maxNumberOfAttempt = numberOfAssessmentAttempt;
-                latestAttempt = &attempt.get();
+                latestAttempt = attempt;
             }
         }
-        finalAttempts.push_back(*latestAttempt);
+
+        if (latestAttempt) {
+            finalAttempts.push_back(latestAttempt);
+        }
     }
+
     return finalAttempts;
 }
 
-std::vector<std::reference_wrapper<AssessmentAttempt>> ModuleAttempt::getFinalattempts() const {
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts;
+
+std::vector<std::shared_ptr<AssessmentAttempt>> ModuleAttempt::getFinalattempts() const {
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts;
     const auto& assessments = module.getAssessmentsWithWeights();
     const auto& assessmentsAttempts = getAttempts();
 
     for (const auto& assessment : assessments) {
-        std::string assessmentId = assessment.first.get().getId();
-        AssessmentAttempt* bestAttempt = nullptr;
+        std::string assessmentId = assessment.first.getId();
+        std::shared_ptr<AssessmentAttempt> bestAttempt = nullptr;
         int maxGradePoints = -1;
 
         for (const auto& attempt : assessmentsAttempts) {
-            std::string attemptAssessmentId = attempt.get().getAssessment().getId();
-            int gradePointsOfAssessmentAttempt = attempt.get().getGradePoints();
+            std::string attemptAssessmentId = attempt->getAssessment().getId();
+            int gradePointsOfAssessmentAttempt = attempt->getGradePoints();
 
             if (attemptAssessmentId == assessmentId && gradePointsOfAssessmentAttempt > maxGradePoints) {
                 maxGradePoints = gradePointsOfAssessmentAttempt;
-                bestAttempt = &attempt.get();
+                bestAttempt = attempt;
             }
         }
-        finalAttempts.push_back(*bestAttempt);
+
+        if (bestAttempt) {
+            finalAttempts.push_back(bestAttempt);
+        }
     }
+
     return finalAttempts;
 }
 
 
+
 double ModuleAttempt::calculateAggregate(){
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
     aggregate = 0;
     const auto& assessments = module.getAssessmentsWithWeights();
     for (const auto& assessment : assessments) {
-        std::string assessmentId = assessment.first.get().getId();
+        std::string assessmentId = assessment.first.getId();
         int weightingOfAssessment = assessment.second;
 
         for (const auto& attempt : finalAttempts) {
-            std::string attemptAssessmentId = attempt.get().getAssessment().getId();
-            int gradePoints = attempt.get().getGradePoints();
+            std::string attemptAssessmentId = attempt->getAssessment().getId();
+            int gradePoints = attempt->getGradePoints();
 
             if (attemptAssessmentId == assessmentId) {
                 aggregate+=gradePoints*weightingOfAssessment/100.0;
@@ -177,7 +187,7 @@ double ModuleAttempt::calculateAggregate(){
     aggregate = gradeSystem.round(aggregate);
     return aggregate;
 }
-
+/*
 bool ModuleAttempt::checkAllElementsPassed(){
     bool allPassed = true;
     std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();

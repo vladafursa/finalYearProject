@@ -33,6 +33,35 @@ std::vector<Assessment> examBoard::retrieveAssessments() {
     return assessments;
 }
 
+std::vector<NEC> examBoard::retrieveNec(){
+    try {
+        pqxx::connection conn("dbname=examinationboard user=master password=password host=board.cv2888uq44nv.eu-north-1.rds.amazonaws.com port=5432");
+
+        if (conn.is_open()) {
+            pqxx::nontransaction txn(conn);
+
+            pqxx::result result = txn.exec("SELECT * FROM nec");
+
+            modules.reserve(result.size());
+
+            for (const auto& row : result) {
+                std::string referenceNumber = row["referenceNumber"].c_str();
+                std::string studentNumber = row["studentNumber"].c_str();
+                bool upheld = row["upheld"].as<bool>();
+                 std::string type = row["type"].c_str();
+
+                nec.emplace_back(referenceNumber, studentNumber, upheld, type);
+            }
+        } else {
+            std::cerr << "Connection to database failed." << std::endl;
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return nec;
+}
+
 std::vector<Module> examBoard::retrieveModules(){
     try {
         pqxx::connection conn("dbname=examinationboard user=master password=password host=board.cv2888uq44nv.eu-north-1.rds.amazonaws.com port=5432");
@@ -78,6 +107,20 @@ std::vector<Module> examBoard::retrieveModules(){
     });
     return *it;
  }
+
+ const NEC* examBoard::retrieveNecForStudent(std::string referenceNumber) {
+    auto it = std::find_if(nec.begin(), nec.end(), [&referenceNumber](const NEC& n) {
+        return n.getReferenceNumber() == referenceNumber;
+    });
+
+    if (it != nec.end()) {
+        return &(*it);
+    } else {
+        return nullptr;
+    }
+ }
+
+
 
 
 
@@ -126,7 +169,7 @@ std::vector<Module> examBoard::retrieveModules(){
 
             for (const auto& row : result) {
                 std::string studentNumber = row["studentNumber"].c_str();
-                std::string assessmentId =  row["id"].c_str();
+                std::string assessmentId = row["id"].c_str();
                 int numberOfAttempt = row["number"].as<int>();
                 bool submittedLate = row["submittedLate"].as<bool>();
                 int gradePoints = row["gradePoints"].as<int>();
@@ -134,9 +177,43 @@ std::vector<Module> examBoard::retrieveModules(){
                 std::string necReferenceNumber = row["necReferenceNumber"].c_str();
                 std::string misconductID = row["misconductID"].c_str();
                 std::string originalAttemptID = row["originalAttemptID"].c_str();
+                std::string finalCode = row["finalCode"].c_str();
+
                 const Assessment& retrievedAssessment = retrieveAssessmentByID(assessmentId);
-                attempts.emplace_back(studentNumber, retrievedAssessment, numberOfAttempt, submittedLate, gradePoints, nullptr, nullptr, nullptr, nullptr);
+
+
+                const Assessment* assessmentPtr = nullptr;
+                const AssessmentCode* providedCode=nullptr;
+                 const AssessmentCode* fCode=nullptr;
+                const NEC* providedNec = nullptr;
+                const Misconduct* providedMisconduct = nullptr;
+                if (!originalAttemptID.empty()) {
+                    const Assessment& assessmentRef = retrieveAssessmentByID(originalAttemptID);
+                    assessmentPtr = &assessmentRef;
+                }
+                if (!necReferenceNumber.empty()){
+                    providedNec=retrieveNecForStudent(necReferenceNumber);
+                }
+                if (!optionalCode.empty()){
+                    providedCode= AssessmentCodes::findAssessmentCodeById(optionalCode);
+
+                }
+                if (!optionalCode.empty()){
+                    providedCode= AssessmentCodes::findAssessmentCodeById(optionalCode);
+
+                }
+
+                AssessmentAttempt attempt(studentNumber, retrievedAssessment, numberOfAttempt, submittedLate, gradePoints,
+                                          providedCode, providedNec, providedMisconduct, assessmentPtr);
+
+                if (!finalCode.empty()) {
+                    fCode = AssessmentCodes::findAssessmentCodeById(finalCode);
+                    attempt.setFinalCode(fCode);
+                }
+
+                attempts.push_back(attempt);
             }
+
         } else {
             std::cerr << "Connection to database failed." << std::endl;
         }
@@ -466,7 +543,7 @@ std::vector<std::shared_ptr<ModuleAttempt>> examBoard::retrieveModuleAttemptsFor
                 "SELECT DISTINCT m.studentNumber, m.code, m.number, m.year, m.grade, m.finalCode, m.creditsEarned "
                 "FROM moduleAttempt m "
                 "JOIN stageContent sc ON sc.code = m.code "
-                "JOIN stageAttempt sa ON sa.studentNumber = m.studentNumber "
+                "JOIN stageAttempt sa ON sc.id = sa.id "
                 "WHERE sa.studentNumber = $1 AND sa.id = $2",
                 studentNumber, stageId
                 );

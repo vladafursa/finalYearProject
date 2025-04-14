@@ -35,7 +35,10 @@ int AssessmentAttempt::getNumberOfAttempt() const{
     return numberOfAttempt;
 }
 
-std::string AssessmentAttempt::getType() const{
+std::string AssessmentAttempt::getType(){
+    if(originalAttempt->getId()==assessment.getId()){
+        type = "original";
+    }
     return type;
 }
 
@@ -54,6 +57,10 @@ std::string AssessmentAttempt::getGrade(){
 
 const AssessmentCode* AssessmentAttempt::getCode() const{
     return code;
+}
+
+const AssessmentCode* AssessmentAttempt::getGinalCode() const{
+    return finalCode;
 }
 
 const NEC* AssessmentAttempt::getNec() const{
@@ -93,6 +100,10 @@ void AssessmentAttempt::setCode(const AssessmentCode* providedCode){
     code = providedCode;
 }
 
+void AssessmentAttempt::setFinalCode(const AssessmentCode* providedCode){
+    finalCode = providedCode;
+}
+
 void AssessmentAttempt::setNec(const NEC* providedNec){
     nec = providedNec;
 }
@@ -114,7 +125,7 @@ void AssessmentAttempt::populatePossibleDecisions(){
     if(nec!=nullptr){
         const AssessmentCode* code = getCode();
         std::string stringCode = code->getCode();
-        if(nec->getType()=="next opportunity" && (stringCode=="NN" || stringCode=="NS")){//only if not submitted
+        if(nec->getType()=="next opportunity" && (stringCode=="NN" || stringCode=="NS" || stringCode=="NE")){//only if not submitted
             setCode(&AssessmentCodes::S1);
             posibleCodes.push_back(&AssessmentCodes::S2);
             posibleCodes.push_back(&AssessmentCodes::S3);

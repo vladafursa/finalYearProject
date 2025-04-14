@@ -91,6 +91,7 @@ const std::set<const ModuleCode*> FAIL_CODES = {
 //Assessment codes
 namespace AssessmentCodes {
 // Pass codes
+const AssessmentCode PA("PA", "Pass");
 const AssessmentCode PC("PC", "Pass with compensation");
 const AssessmentCode PL("PL", "Pass – late submission");
 const AssessmentCode PR("PR", "Pass following Referral");
@@ -143,6 +144,25 @@ const AssessmentCode WD("WD", "Withdrew");
 const std::set<const AssessmentCode*> FIRST_SIT_CODES = {
     &S1, &S2, &S3, &S4
 };
+
+static const std::vector<const AssessmentCode*> allCodes = {
+    &PC, &PL, &PR, &PQ, &PK, &PB, &PJ, &PY,
+    &RR, &RE, &RK, &RT, &RM, &RW, &RF, &RN, &DF,
+    &S1, &S2, &S3, &S4,
+    &FE, &FA, &FN, &FR, &FW, &FC, &FO,
+    &OE, &EB, &CA, &CC, &CR, &DL, &MC, &OG, &RC,
+    &WD
+};
+inline const AssessmentCode* findAssessmentCodeById(const std::string code) {
+    for (const auto* ac : allCodes) {
+        if (ac->getCode() == code) {
+            return ac;
+        }
+    }
+    return nullptr;
+}
+
+
 }
 
 //Progression codes

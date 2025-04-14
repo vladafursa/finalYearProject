@@ -14,6 +14,7 @@
 #include "stageattempt.h"
 #include "course.h"
 #include"courseattempt.h"
+#include "nec.h"
 class examBoard
 {
 private:
@@ -24,8 +25,11 @@ private:
     std::vector<Course> courses;
     std::vector<AssessmentAttempt> assessmentAttempts;
     std::vector<AssessmentAttempt> allAssessmentAttempts;
+    std::vector<NEC> nec;
 public:
     examBoard();
+    std::vector<NEC> retrieveNec();
+    const NEC* retrieveNecForStudent(std::string referenceNumber);
     std::vector<Assessment> retrieveAssessments();
     std::vector<Student> retrieveStudents();
     std::vector<Module> retrieveModules();
