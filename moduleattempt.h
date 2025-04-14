@@ -8,15 +8,16 @@
 #include "modulecode.h"
 #include "CodeConstants.h"
 #include "grades.h"
+#include <memory>
 
 class ModuleAttempt
 {
 private:
     std::string studentNumber;
-    const Module& module;
+    Module module;
     int numberOfAttempt;
     std::string type;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
     bool hadMisconduct;
     bool submittedLate;
     double aggregate;
@@ -26,19 +27,24 @@ private:
     std::vector<const ModuleCode*> posibleCodes;
     Grades gradeSystem;
     std::string grade;
+    std::string year;
 public:
     //constructor
     ModuleAttempt(std::string providedStudentNumber,
-                  const Module& providedModule,
+                  Module providedModule,
                   int providedNumberOfAttempt,
-                  std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts);
+                  std::string providedYear,
+                  std::vector<std::shared_ptr<AssessmentAttempt>>& providedAttempts);
 
     //getters
     std::string getStudentNumber() const;
-    const Module& getModule() const;
+    const Module& getModule() const noexcept {
+        return module;
+    }
     int getNumberOfAttempt() const;
+    std::string getYear() const;
     std::string getType() const;
-    const std::vector<std::reference_wrapper<AssessmentAttempt>>& getAttempts() const;
+    const std::vector<std::shared_ptr<AssessmentAttempt>>& getAttempts() const;
     bool getHadNec() const;
     double getAggregate() const;
     bool getPassed() const;
@@ -52,8 +58,9 @@ public:
     //setters
     void setStudentNumber(std::string providedStudentNumber);
     void setNumberOfAttempt(int providedNumberOfAttempt);
+    void setYear(std::string providedYear);
     void setType(std::string providedType);
-    void setAtempts(std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts);
+    void setAtempts(std::vector<std::shared_ptr<AssessmentAttempt>>& providedAttempts);
     void setAggregate(double providedAggregate);
     void setPassed(bool providedPassed);
     void setCreditsEarned(int providedCreditsEarned);
@@ -62,7 +69,7 @@ public:
     void setPossibleDecisions(const ModuleCode* providedPossibleCode);
 
     //calculations
-    std::vector<std::reference_wrapper<AssessmentAttempt>> getFinalattempts() const;
+    std::vector<std::shared_ptr<AssessmentAttempt>> getFinalattempts() const;
     double calculateAggregate();
     bool checkAllElementsPassed();
     void generateCode();
@@ -74,7 +81,7 @@ public:
     void failElements();
     void transferMisconduct();
     int numberOfNotPassed();
-    std::vector<std::reference_wrapper<AssessmentAttempt>> getLatestAttempts() const;
+    std::vector<std::shared_ptr<AssessmentAttempt>> getLatestAttempts() const;
 };
 
 #endif // MODULEATTEMPT_H

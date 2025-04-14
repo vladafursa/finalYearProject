@@ -2,7 +2,7 @@
 
 CourseAttempt::CourseAttempt(std::string providedStudentNumber,
             const Course& providedCourse,
-            std::vector<std::reference_wrapper<StageAttempt>>& providedAttempts):course(providedCourse){
+            std::vector<std::shared_ptr<StageAttempt>>& providedAttempts):course(providedCourse){
     studentNumber = providedStudentNumber;
     attempts = providedAttempts;
 }
@@ -15,7 +15,7 @@ const Course& CourseAttempt::getCourse() const{
     return course;
 }
 
-const std::vector<std::reference_wrapper<StageAttempt>>& CourseAttempt::getAttempts() const{
+const std::vector<std::shared_ptr<StageAttempt>>& CourseAttempt::getAttempts() const{
     return attempts;
 }
 
@@ -39,7 +39,7 @@ void CourseAttempt::setStudentNumber(std::string providedStudentNumber){
     studentNumber = providedStudentNumber;
 }
 
-void CourseAttempt::setAtempts(std::vector<std::reference_wrapper<StageAttempt>>& providedAttempts){
+void CourseAttempt::setAtempts(std::vector<std::shared_ptr<StageAttempt>>& providedAttempts){
     attempts=providedAttempts;
 }
 
@@ -58,7 +58,7 @@ void CourseAttempt::setGrade(std::string providedGrade){
     grade = providedGrade;
 }
 
-
+/*
 void CourseAttempt::calculateProgression(){
     for(const auto& attempt : attempts){
         if(attempt.get().getStage().getLevel()==4 && attempt.get().getCreditsEarned()<120){
@@ -158,4 +158,4 @@ double CourseAttempt::calculateAggregate(){
     }
 }
 
-
+*/

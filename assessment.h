@@ -23,6 +23,9 @@ public:
     std::string getId() const;
     std::string getType() const;
     std::string getName() const;
+    bool operator==(const Assessment& other) const {
+        return id == other.id && name == other.name && type == other.type;
+    }
 };
 
 #endif // ASSESSMENT_H

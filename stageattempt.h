@@ -8,7 +8,7 @@ class StageAttempt
 private:
     std::string studentNumber;
     const Stage& stage;
-    std::vector<std::reference_wrapper<ModuleAttempt>> attempts;
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
     double aggregate;
     bool passed;
     int creditsEarned;
@@ -20,15 +20,15 @@ private:
 public:
     StageAttempt(std::string providedStudentNumber,
                   const Stage& providedStage,
-                  std::vector<std::reference_wrapper<ModuleAttempt>>& providedAttempts);
+                  std::vector<std::shared_ptr<ModuleAttempt>>& providedAttempts);
 
     //getters
     std::string getStudentNumber() const;
     const Stage& getStage() const;
-    const std::vector<std::reference_wrapper<ModuleAttempt>>& getAttempts() const;
+    const std::vector<std::shared_ptr<ModuleAttempt>>& getAttempts() const;
     double getAggregate() const;
     bool getPassed() const;
-    int getCreditsEarned();
+  //  int getCreditsEarned();
     const ProgressionCode* getFinalCode() const;
     const std::vector<const ProgressionCode*>& getPossibleCodes() const;
     std::string getGrade();
@@ -36,7 +36,7 @@ public:
 
     //setters
     void setStudentNumber(std::string providedStudentNumber);
-    void setAtempts(std::vector<std::reference_wrapper<ModuleAttempt>>& providedAttempts);
+    void setAtempts(std::vector<std::shared_ptr<ModuleAttempt>>& providedAttempts);
     void setAggregate(double providedAggregate);
     void setPassed(bool providedPassed);
     void setCreditsEarned(int providedCreditsEarned);
@@ -44,7 +44,7 @@ public:
     void setPossibleCodes( std::vector<const ProgressionCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
     void setRemainingCompensationCredits(int providedRemainingCredits);
-
+/*
     //calculations
     std::vector<std::reference_wrapper<ModuleAttempt>> getFinalattempts() const;
     double calculateAggregate();
@@ -58,6 +58,7 @@ public:
     int checkReferred();
     int checkFirstSeats() ;
     int checkFail() ;
+*/
 };
 
 #endif // STAGEATTEMPT_H

@@ -1,10 +1,11 @@
 #include "course.h"
 
 //constructor
-Course::Course(std::string providedName,
-       const std::vector<std::reference_wrapper<Stage>>& providedStages,
+Course::Course(std::string providedCode,std::string providedName,
+       const std::vector<std::shared_ptr<Stage>>& providedStages,
        std::string providedStartClassification,
                std::string providedType){
+    code = providedCode;
     name = providedName;
     stages = providedStages;
     startClassification = providedStartClassification;
@@ -16,7 +17,7 @@ std::string Course::getName() const {
     return name;
 }
 
-const std::vector<std::reference_wrapper<Stage>>& Course::getStages() const {
+const std::vector<std::shared_ptr<Stage>>& Course::getStages() const {
     return stages;
 }
 
@@ -33,7 +34,7 @@ void Course::setName(std::string providedName) {
     name = providedName;
 }
 
-void Course::setStages(const std::vector<std::reference_wrapper<Stage>>& providedStages) {
+void Course::setStages(const std::vector<std::shared_ptr<Stage>>& providedStages) {
     stages = providedStages;
 }
 

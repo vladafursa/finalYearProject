@@ -2,12 +2,14 @@
 #include "CodeConstants.h"
 //constructor
 ModuleAttempt::ModuleAttempt(std::string providedStudentNumber,
-              const Module& providedModule,
-              int providedNumberOfAttempt,
-              std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts):module(providedModule){
+                             Module providedModule,
+                             int providedNumberOfAttempt,
+                             std::string providedYear,
+                             std::vector<std::shared_ptr<AssessmentAttempt>>& providedAttempts)
+    : module(std::move(providedModule)), attempts(providedAttempts) {
     studentNumber = providedStudentNumber;
     numberOfAttempt = providedNumberOfAttempt;
-    attempts = providedAttempts;
+    year = providedYear;
 }
 
 //getters
@@ -15,19 +17,20 @@ std::string ModuleAttempt::getStudentNumber() const{
     return studentNumber;
 }
 
-const Module& ModuleAttempt::getModule() const{
-    return module;
-}
 
 int ModuleAttempt::getNumberOfAttempt() const{
     return numberOfAttempt;
+}
+
+std::string ModuleAttempt::getYear() const{
+    return year;
 }
 
 std::string ModuleAttempt::getType() const{
     return type;
 }
 
-const std::vector<std::reference_wrapper<AssessmentAttempt>>& ModuleAttempt::getAttempts() const{
+const std::vector<std::shared_ptr<AssessmentAttempt>>& ModuleAttempt::getAttempts() const{
     return attempts;
 }
 
@@ -40,6 +43,7 @@ double ModuleAttempt::getAggregate() const{
 bool ModuleAttempt::getPassed() const{
     return passed;
 }
+
 
 int ModuleAttempt::getCreditsEarned() const{
     return creditsEarned;
@@ -62,11 +66,15 @@ void ModuleAttempt::setNumberOfAttempt(int providedNumberOfAttempt){
     numberOfAttempt = providedNumberOfAttempt;
 }
 
+void ModuleAttempt::setYear(std::string providedYear) {
+    year = providedYear;
+}
+
 void ModuleAttempt::setType(std::string providedType){
     type = providedType;
 }
 
-void ModuleAttempt::setAtempts(std::vector<std::reference_wrapper<AssessmentAttempt>>& providedAttempts){
+void ModuleAttempt::setAtempts(std::vector<std::shared_ptr<AssessmentAttempt>>& providedAttempts){
     attempts=providedAttempts;
 }
 
@@ -99,6 +107,7 @@ std::string ModuleAttempt::getGrade(){
 //calculations
 //best ones
 //getting only latest attempts
+/*
 std::vector<std::reference_wrapper<AssessmentAttempt>> ModuleAttempt::getLatestAttempts() const {
     std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts;
     const auto& assessments = module.getAssessmentsWithWeights();
@@ -462,3 +471,4 @@ void ModuleAttempt::transferMisconduct(){
     }
 }
 
+*/

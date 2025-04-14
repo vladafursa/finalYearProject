@@ -7,109 +7,99 @@
 #include "stage.h"
 #include "stageattempt.h"
 #include "examboard.h"
-using namespace std;
 
-
-int main()
-{
+int main(){
     examBoard exboard;
     exboard.retrieveAssessments();
     exboard.retrieveModules();
-    std::cout<<exboard.retrieveModuleType("N111111", "CS101");
+    exboard.retrieveStages();
+    exboard.retrieveCourses();
 
 
 
     std::vector<Student> students = exboard.retrieveStudents();
-
     for (const auto& student : students) {
-        std::cout << student.getStudentNumber()<<std::endl;
-        std::vector<AssessmentAttempt> attempts = exboard.retrieveAssessmentAttemptsForStudent(student.getStudentNumber());
-        for (const auto& attempt : attempts){
-            std::cout<<attempt.getAssessment().getId()<<"   "<<attempt.getGradePoints()<<std::endl;
+        std::cout << "Student Number: " << student.getStudentNumber() << std::endl;
+
+        // Retrieve CourseAttempt for the student
+        CourseAttempt* courseAttempt = exboard.retrieveStudentCourseAttept(student.getStudentNumber());
+
+        // Check if the courseAttempt is valid
+        if (courseAttempt != nullptr) {
+            std::cout << "Course Name: " << courseAttempt->getCourse().getName() << std::endl;
+
+            // Retrieve the StageAttempts for the student
+            const std::vector<std::shared_ptr<StageAttempt>>& stageAttempts = courseAttempt->getAttempts();
+
+
+            for (const auto& stageAttempt : stageAttempts) {
+                std::cout << "Stage ID: " << stageAttempt->getStage().getId() << std::endl;
+                for (const auto& module : stageAttempt->getStage().getModules()) {
+                    std::cout << module->getCode() << "        ";
+                }
+
+                for (const auto& moduleAttemptPtr : stageAttempt->getAttempts()) {
+                    std::shared_ptr<ModuleAttempt> moduleAttempt = moduleAttemptPtr;
+                    const Module& module = moduleAttempt->getModule();
+
+                    std::cout << "Module Code: " << module.getCode() << std::endl;
+
+                    const AssessmentWeightsMap& weights = module.getAssessmentsWithWeights();
+                    std::cout << "Weights size: " << weights.size() << std::endl;
+
+                    for (const auto& pair : weights) {
+                        const Assessment& assessment = pair.first;
+                        int weight = pair.second;
+
+                        std::cout << "Assessment ID: " << assessment.getId()
+                                  << ", Name: " << assessment.getName()
+                                  << ", Type: " << assessment.getType()
+                                  << ", Weight: " << weight << std::endl;
+                    }
+                }
+
+            }
+
+            std::cout << std::endl;
         }
     }
 
 }
 
 /*
- *
- *
- *     std::vector<Module> modules =  exboard.retrieveModules();
 
-    std::cout<<"Assessment table"<<std::endl;
-    std::cout<<"code            "<<"name     "<<"credits     "<<std::endl;
-    for (const auto& module : modules) {
-        std::cout <<module.getCode() <<"    "<< module.getName()<<"    "<< module.getCredits() << std::endl;
-    }
+            // Print module codes in the stage
+            for (const auto& module : stageAttempt->getStage().getModules()) {
+                std::cout << module->getCode() << "        ";
+            }
+            std::cout << std::endl;
 
 
- *   std::cout<<"Student table"<<std::endl;
-    std::cout<<"Student Number            "<<"Name  "<<"Name      "<<"Course"<<std::endl;
-    for (const auto& student : students) {
-        std::cout << student.getStudentNumber()<<"       "<< student.getName()<<"       "<< student.getCourse()<<"      "<<student.getDateEnrolled()<<"     "<<student.isFullyEnrolled()<< std::endl;
-    }
- *
- * //Assessment table
- *  std::cout<<"Assessment table"<<std::endl;
-    std::cout<<"ID            "<<"Type      "<<"Name      "<<std::endl;
-    for (const auto& assessment : assessments) {
-        std::cout << assessment.getId()<<"    "<< assessment.getType()<<"    "<< assessment.getName() << std::endl;
-    }
 
+            for (const auto& moduleAttemptPtr : stageAttempt->getAttempts()) {
+                std::shared_ptr<ModuleAttempt> moduleAttempt = moduleAttemptPtr;
+                const Module& module = moduleAttempt->getModule();
+
+                std::cout << "Module Code: " << module.getCode() << std::endl;
+
+                const AssessmentWeightsMap& weights = module.getAssessmentsWithWeights();
+                std::cout << "Weights size: " << weights.size() << std::endl;
+
+                for (const auto& pair : weights) {
+                    const Assessment& assessment = pair.first;
+                    int weight = pair.second;
+
+                    std::cout << "Assessment ID: " << assessment.getId()
+                              << ", Name: " << assessment.getName()
+                              << ", Type: " << assessment.getType()
+                              << ", Weight: " << weight << std::endl;
+                }
+            }
+
+
+        }
 */
-/*
-
-    Assessment coursework("1","coursework","coding classes");
-    Assessment exam("2", "exam", "check knowledge about classes");
-    Misconduct m1("1", "T1", "serious", "low3");
-    AssessmentAttempt attemptCoursework("T1", coursework, 1, "original", false, 3, nullptr, nullptr, &m1);
-    AssessmentAttempt attemptRepeatCoursework("T1", coursework, 2, "original", false, 12);
-    AssessmentAttempt attemptExam("T1", exam, 1, "original", false, 3);
-    AssessmentWeightsMap assessments;
-
-    assessments.emplace(std::ref(coursework), 60);
-    assessments.emplace(std::ref(exam), 40);
-    Module module1("1111", "some module", "202425", "core", 20, assessments);
-    Module module2("1112", "another module", "202425", "core", 20, assessments);
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(attemptCoursework);
-    attempts.push_back(attemptRepeatCoursework);
-    attempts.push_back(attemptExam);
-    ModuleAttempt attempt1("T1", module1, 1, "original", attempts);
-    ModuleAttempt attempt2("T1", module2, 1, "original", attempts);
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = attempt1.getFinalattempts();
-    for (const auto& attempt : finalAttempts) {
-        std::cout << "Attempt details: " << attempt.get().getAssessment().getName()<<" "<< attempt.get().getNumberOfAttempt()<< " "
-                  <<attempt.get().getGrade()<<std::endl;
-
-    }
-    double result = attempt1.calculateAggregate();
-    attempt1.getGrade();
-    std::cout<<"result: "<<result<<std::endl;
-    std::cout<<"outcome: "<<attempt1.checkAllElementsPassed()<<std::endl;
-    std::cout<< "special outcome: "<<attempt1.determinSpecialPass()<<std::endl;
-    attempt1.generateCode();
-    std::cout<<"code: "<<attempt1.getFinalCode()->getCode();
-    std::cout<<attempt1.getHadMisconduct()<<std::endl;
 
 
 
 
-    attempt1.setFinalCode(&ModuleCodes::PA);
-    std::cout<<"final code"<<attempt1.getFinalCode()->getCode()<<std::endl;
-    attempt2.setFinalCode(&ModuleCodes::PB);
-    std::cout<<"final code"<<attempt2.getFinalCode()->getCode()<<std::endl;
-    std::vector<std::reference_wrapper<Module>> modules;
-    std::vector<std::reference_wrapper<ModuleAttempt>> moduleAttempts;
-    modules.push_back(module1);
-    modules.push_back(module2);
-    moduleAttempts.push_back(attempt1);
-    moduleAttempts.push_back(attempt2);
-    Stage stage1(120, 1,4, modules, 20);
-    StageAttempt stAttempt1("T1", stage1, moduleAttempts);
-    std::cout<<"passed stage: "<<stAttempt1.checkAllModulesPassed();
-    return 0;
-
-}
-
-*/

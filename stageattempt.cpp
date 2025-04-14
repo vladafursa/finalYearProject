@@ -4,7 +4,7 @@
 //constructor
 StageAttempt::StageAttempt(std::string providedStudentNumber,
              const Stage& providedStage,
-                           std::vector<std::reference_wrapper<ModuleAttempt>>& providedAttempts):stage(providedStage){
+                           std::vector<std::shared_ptr<ModuleAttempt>>& providedAttempts):stage(providedStage){
     studentNumber = providedStudentNumber;
     attempts = providedAttempts;
 }
@@ -18,7 +18,7 @@ const Stage& StageAttempt::getStage() const{
     return stage;
 }
 
-const std::vector<std::reference_wrapper<ModuleAttempt>>& StageAttempt::getAttempts() const{
+const std::vector<std::shared_ptr<ModuleAttempt>>& StageAttempt::getAttempts() const{
     return attempts;
 }
 
@@ -30,7 +30,7 @@ bool StageAttempt::getPassed() const{
     return passed;
 }
 
-
+/*
 int StageAttempt::getCreditsEarned() {
     std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
     creditsEarned = 0;
@@ -39,7 +39,7 @@ int StageAttempt::getCreditsEarned() {
     }
     return creditsEarned;
 }
-
+*/
 const ProgressionCode* StageAttempt::getFinalCode() const{
     return finalCode;
 }
@@ -63,7 +63,7 @@ void StageAttempt::setStudentNumber(std::string providedStudentNumber){
 }
 
 
-void StageAttempt::setAtempts(std::vector<std::reference_wrapper<ModuleAttempt>>& providedAttempts){
+void StageAttempt::setAtempts(std::vector<std::shared_ptr<ModuleAttempt>>& providedAttempts){
     attempts=providedAttempts;
 }
 
@@ -90,7 +90,7 @@ void StageAttempt::setPossibleCodes(std::vector<const ProgressionCode*>& provide
 void StageAttempt::setRemainingCompensationCredits(int providedRemainingCredits){
     remainingCompensationCredits = providedRemainingCredits;
 }
-
+/*
 //calculations
 //getting only latest attempts
 std::vector<std::reference_wrapper<ModuleAttempt>> StageAttempt::getFinalattempts() const {//модуль с лучшими попытками
@@ -155,7 +155,7 @@ bool StageAttempt::checkAllModulesPassed() {
     }
     return numberOfPassed == finalAttempts.size();
 }
-
+/*
 //determine which can be compensated
 void StageAttempt::determinCompensationPass(){
     std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
@@ -367,3 +367,4 @@ int StageAttempt::checkFail() {
 }
 
 
+*/

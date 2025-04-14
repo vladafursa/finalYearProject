@@ -56,11 +56,10 @@ void Module::setCredits(int providedCredits){
     credits = providedCredits;
 }
 
-void Module::setAssessmentWeights(AssessmentWeightsMap& providedAssessmentWeights){
+void Module::setAssessmentWeights(AssessmentWeightsMap providedAssessmentWeights){
     assessmentsWithWeights = providedAssessmentWeights;
 }
 
 
-void Module::addAssessment(Assessment& assessment, int weight) {
-    assessmentsWithWeights[std::ref(assessment)] = weight;
-}
+
+

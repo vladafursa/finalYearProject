@@ -12,7 +12,7 @@ class CourseAttempt
 private:
     std::string studentNumber;
     const Course& course;
-    std::vector<std::reference_wrapper<StageAttempt>> attempts;
+    std::vector<std::shared_ptr<StageAttempt>> attempts;
     double weightedAwarsClassification;
     double majorityClassification;
     std::string classification;
@@ -24,11 +24,11 @@ private:
 public:
     CourseAttempt(std::string providedStudentNumber,
                  const Course& providedCourse,
-                 std::vector<std::reference_wrapper<StageAttempt>>& providedAttempts);
+                 std::vector<std::shared_ptr<StageAttempt>>& providedAttempts);
 
     std::string getStudentNumber() const;
     const Course& getCourse() const;
-    const std::vector<std::reference_wrapper<StageAttempt>>& getAttempts() const;
+    const std::vector<std::shared_ptr<StageAttempt>>& getAttempts() const;
     double getWeightedAwarsClassification() const;
     const AwardCode* getFinalCode() const;
     const std::vector<AwardCode*>& getPossibleCodes() const;
@@ -36,17 +36,17 @@ public:
 
     //setters
     void setStudentNumber(std::string providedStudentNumber);
-    void setAtempts(std::vector<std::reference_wrapper<StageAttempt>>& providedAttempts);
+    void setAtempts(std::vector<std::shared_ptr<StageAttempt>>& providedAttempts);
     void setWeightedAwarsClassification(double providedWeightedAwarsClassification);
     void setFinalCode(const AwardCode* providedProgressionCode);
     void setPossibleCodes(std::vector<AwardCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
-
+/*
     double calculateAggregate();
     bool checkAllModulesPassed();
     void generateCode();
     void populatePossibleDecisions();
-    void calculateProgression();
+    void calculateProgression();*/
 };
 
 #endif // COURSEATTEMPT_H

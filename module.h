@@ -8,9 +8,8 @@
 #include "StdExtension.h"
 
 //creating type of map to not copy it all over
-using AssessmentWeightsMap = std::unordered_map<std::reference_wrapper<const Assessment>, int,
-                                                std::hash<std::reference_wrapper< const Assessment>>,
-                                                std::ReferenceWrapperEqual<const Assessment>>;
+using AssessmentWeightsMap = std::unordered_map<Assessment, int>;
+
 
 class Module
 {
@@ -41,8 +40,8 @@ public:
     void setYear(std::string providedYear);
     void setType(std::string providedType);
     void setCredits(int providedCredits);
-    void setAssessmentWeights(AssessmentWeightsMap& providedAssessmentWeights);
-    void addAssessment(Assessment& assessment, int weight);
+    void setAssessmentWeights(AssessmentWeightsMap providedAssessmentWeights);
+
 };
 
 #endif // MODULE_H

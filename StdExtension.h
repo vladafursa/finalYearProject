@@ -18,6 +18,15 @@ struct ReferenceWrapperEqual {
         return &lhs.get() == &rhs.get();
     }
 };
+
+template<>
+struct hash<Assessment> {
+    size_t operator()(const Assessment& assessment) const {
+        return hash<std::string>()(assessment.getId()) ^
+               (hash<std::string>()(assessment.getName()) << 1) ^
+               (hash<std::string>()(assessment.getType()) << 2);
+    }
+};
 }
 
 #endif // STDEXTENSION_H

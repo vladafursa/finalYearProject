@@ -1,7 +1,8 @@
 #include "stage.h"
 
 
-Stage::Stage(int providedCredits, int providedYear, int providedLevel, const std::vector<std::reference_wrapper<Module>>& providedModule, int providedLimitOfCredits){
+Stage::Stage(std::string providedId, int providedCredits, int providedYear, int providedLevel, const std::vector<std::shared_ptr<Module>>& providedModule, int providedLimitOfCredits){
+    id =  providedId;
     credits = providedCredits;
     year = providedYear;
     level = providedLevel;
@@ -22,7 +23,7 @@ int Stage::getLevel() const{
     return level;
 }
 
-const std::vector<std::reference_wrapper<Module>>& Stage::getModules() const{
+const std::vector<std::shared_ptr<Module>>& Stage::getModules() const{
     return modules;
 }
 
@@ -43,7 +44,7 @@ void Stage::setLevel(int providedLevel){
     level = providedLevel;
 }
 
-void Stage::setModules(const std::vector<std::reference_wrapper<Module>>& providedModule){
+void Stage::setModules(const std::vector<std::shared_ptr<Module>>& providedModule){
     modules = providedModule;
 }
 
