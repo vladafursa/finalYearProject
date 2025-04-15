@@ -34,8 +34,6 @@ const std::vector<std::shared_ptr<AssessmentAttempt>>& ModuleAttempt::getAttempt
     return attempts;
 }
 
-
-
 double ModuleAttempt::getAggregate() const{
     return aggregate;
 }
@@ -119,7 +117,13 @@ std::vector<std::shared_ptr<AssessmentAttempt>> ModuleAttempt::getLatestAttempts
         int maxNumberOfAttempt = 0;
 
         for (const auto& attempt : assessmentAttempts) {
-            std::string attemptAssessmentId = attempt->getAssessment().getId();
+            std::string attemptAssessmentId;
+            if(attempt->getOriginalAttempt()!=nullptr){
+                attemptAssessmentId = attempt->getOriginalAttempt()->getId();
+            }
+            else{
+                attemptAssessmentId = attempt->getAssessment().getId();
+            }
             int numberOfAssessmentAttempt = attempt->getNumberOfAttempt();
 
             if (attemptAssessmentId == assessmentId && numberOfAssessmentAttempt > maxNumberOfAttempt) {
@@ -148,10 +152,17 @@ std::vector<std::shared_ptr<AssessmentAttempt>> ModuleAttempt::getFinalattempts(
         int maxGradePoints = -1;
 
         for (const auto& attempt : assessmentsAttempts) {
-            std::string attemptAssessmentId = attempt->getAssessment().getId();
+            std::string attemptAssessmentId;
+            if(attempt->getOriginalAttempt()!=nullptr){
+                attemptAssessmentId = attempt->getOriginalAttempt()->getId();
+            }
+            else{
+                attemptAssessmentId = attempt->getAssessment().getId();
+            }
+
             int gradePointsOfAssessmentAttempt = attempt->getGradePoints();
 
-            if (attemptAssessmentId == assessmentId && gradePointsOfAssessmentAttempt > maxGradePoints) {
+            if (attemptAssessmentId == assessmentId && gradePointsOfAssessmentAttempt >= maxGradePoints) {
                 maxGradePoints = gradePointsOfAssessmentAttempt;
                 bestAttempt = attempt;
             }
@@ -176,7 +187,19 @@ double ModuleAttempt::calculateAggregate(){
         int weightingOfAssessment = assessment.second;
 
         for (const auto& attempt : finalAttempts) {
-            std::string attemptAssessmentId = attempt->getAssessment().getId();
+            std::string attemptAssessmentId;
+
+            if(attempt->getOriginalAttempt()!=nullptr){
+                if(numberOfRepeated()!=finalAttempts.size()){//if all repeated, new weighting
+                     attemptAssessmentId = attempt->getOriginalAttempt()->getId();
+                }
+                else{
+                    attemptAssessmentId = attempt->getAssessment().getId();
+                }
+            }
+            else{
+                attemptAssessmentId = attempt->getAssessment().getId();
+            }
             int gradePoints = attempt->getGradePoints();
 
             if (attemptAssessmentId == assessmentId) {
@@ -187,12 +210,85 @@ double ModuleAttempt::calculateAggregate(){
     aggregate = gradeSystem.round(aggregate);
     return aggregate;
 }
-/*
+
+
+int ModuleAttempt::numberOfNotPassed(){
+    int notPassed=0;
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+        std::string attemptGrade = attempt->getGrade();
+        if(!gradeSystem.isGreaterThanThreshold(attemptGrade, "3LOW")){
+            notPassed++;
+        }
+    }
+    return notPassed;
+}
+
+
+void ModuleAttempt::assignTypes() {
+    for (const auto& current : attempts) {
+        if (current->getNumberOfAttempt() == 1 || AssessmentCodes::FIRST_SIT_CODES.contains(current->getFinalCode())) {
+            current->setType("original");
+            continue;
+        }
+
+        for (const auto& prev : attempts) {
+            bool sameAssessment = false;
+
+            const std::string& currentCode = current->getOriginalAttempt() != nullptr
+                                                 ? current->getOriginalAttempt()->getId()
+                                                 : current->getAssessment().getId();
+
+            const std::string& prevCode = prev->getOriginalAttempt() != nullptr
+                                              ? prev->getOriginalAttempt()->getId()
+                                              : prev->getAssessment().getId();
+
+            sameAssessment = (currentCode == prevCode);
+
+            if (sameAssessment &&
+                prev->getNumberOfAttempt() == current->getNumberOfAttempt() - 1) {
+
+                const AssessmentCode* prevFinalCode = prev->getFinalCode();
+                if (prevFinalCode != nullptr) {
+
+                    for (const auto& code : AssessmentCodes::REPEAT_CODES) {
+                        if (code->getCode() == prevFinalCode->getCode()) {
+                            current->setType("repeat");
+                            break;
+                        }
+                    }
+                    for (const auto& code : AssessmentCodes::REFERRED_CODES) {
+                        if (code->getCode() == prevFinalCode->getCode()) {
+                            current->setType("referral");
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
+
+
+int ModuleAttempt::numberOfRepeated(){
+    int numberOfRepeated=0;
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getLatestAttempts();
+    for (const auto& attempt : finalAttempts) {
+        if(attempt->getType() == "repeat"){
+            numberOfRepeated++;
+        }
+    }
+    return numberOfRepeated;
+}
+
+
 bool ModuleAttempt::checkAllElementsPassed(){
     bool allPassed = true;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts) {
-        std::string grade = attempt.get().getGrade();
+        std::string grade = attempt->getGrade();
         if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
             allPassed=false;
         }
@@ -200,6 +296,28 @@ bool ModuleAttempt::checkAllElementsPassed(){
     return allPassed;
 }
 
+
+bool ModuleAttempt::determinSpecialPass(){
+    bool canPass = false;
+    std::vector<std::shared_ptr<AssessmentAttempt>> failedAttempts;
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+        std::string attemptGrade = attempt->getGrade();
+        if(!gradeSystem.isGreaterThanThreshold(attemptGrade, "3LOW")){
+            failedAttempts.push_back(attempt);
+        }
+    }
+    size_t numberOfFails = failedAttempts.size();
+    if (gradeSystem.isGreaterThanThreshold(grade, "3LOW") && numberOfFails==1){
+        std::string failedGrade = failedAttempts[0]->getGrade();
+        if (gradeSystem.isGreaterThanThreshold(failedGrade, "FMARG")){
+            canPass = true;
+        }
+    }
+    return canPass;
+}
+
+/*
 void ModuleAttempt::generateCode(){
     if (checkAllElementsPassed() || determinSpecialPass()){
         passed = true;
@@ -247,25 +365,7 @@ void ModuleAttempt::generateCode(){
 }
 
 
-bool ModuleAttempt::determinSpecialPass(){
-    bool canPass = false;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> failedAttempts;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
-    for (const auto& attempt : finalAttempts) {
-        std::string attemptGrade = attempt.get().getGrade();
-        if(!gradeSystem.isGreaterThanThreshold(attemptGrade, "3LOW")){
-            failedAttempts.push_back(attempt);
-        }
-    }
-    size_t numberOfFails = failedAttempts.size();
-    if (gradeSystem.isGreaterThanThreshold(grade, "3LOW") && numberOfFails==1){
-        std::string failedGrade = failedAttempts[0].get().getGrade();
-        if (gradeSystem.isGreaterThanThreshold(failedGrade, "FMARG")){
-            canPass = true;
-        }
-    }
-    return canPass;
-}
+
 
 int ModuleAttempt::numberOfNotPassed(){
     int notPassed=0;

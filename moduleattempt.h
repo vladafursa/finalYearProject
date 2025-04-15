@@ -82,6 +82,8 @@ public:
     void transferMisconduct();
     int numberOfNotPassed();
     std::vector<std::shared_ptr<AssessmentAttempt>> getLatestAttempts() const;
+    void assignTypes();
+    int numberOfRepeated();
 };
 
 #endif // MODULEATTEMPT_H

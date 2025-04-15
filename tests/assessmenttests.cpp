@@ -22,7 +22,6 @@ BOOST_AUTO_TEST_SUITE( assessmentTests )
 
 
 //misconduct tests
-
 //grade grade changes
 //check that grade is not changed when there is no misconducts
 BOOST_AUTO_TEST_CASE(noMisconductGradeTest) {

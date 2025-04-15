@@ -91,7 +91,6 @@ const std::set<const ModuleCode*> FAIL_CODES = {
 //Assessment codes
 namespace AssessmentCodes {
 // Pass codes
-const AssessmentCode PA("PA", "Pass");
 const AssessmentCode PC("PC", "Pass with compensation");
 const AssessmentCode PL("PL", "Pass – late submission");
 const AssessmentCode PR("PR", "Pass following Referral");
@@ -149,7 +148,12 @@ const AssessmentCode NE("NE", "Not ...");
 const std::set<const AssessmentCode*> FIRST_SIT_CODES = {
     &S1, &S2, &S3, &S4
 };
-
+const std::set<const AssessmentCode*> REFERRED_CODES = {
+    &RR, &RE, &RK, &RT, &RM, &RW, &RF, &RN
+};
+const std::set<const AssessmentCode*> REPEAT_CODES = {
+    &FA, &FR, &FW, &FC, &FO
+};
 static const std::vector<const AssessmentCode*> allCodes = {
     &PC, &PL, &PR, &PQ, &PK, &PB, &PJ, &PY,
     &RR, &RE, &RK, &RT, &RM, &RW, &RF, &RN, &DF,

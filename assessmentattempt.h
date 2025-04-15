@@ -52,6 +52,9 @@ public:
     const NEC* getNec() const;
     const Misconduct* getMisconduct() const;
     const std::vector<const AssessmentCode*>& getPossibleCodes() const;
+    const Assessment* getOriginalAttempt() const {
+        return originalAttempt;
+    }
 
     //setters
     void setStudentNumber(const std::string providedStudentNumber);

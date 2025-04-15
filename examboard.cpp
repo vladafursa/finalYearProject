@@ -424,8 +424,8 @@ AssessmentWeightsMap examBoard::retrieveAssessmentWeightsForModule(const std::st
             pqxx::nontransaction txn(conn);
 
             pqxx::result result = txn.exec_params(
-                "SELECT id, weight FROM public.assessmentmoduleweights WHERE code = $1 AND year = $2",
-                moduleCode, year
+                "SELECT id, weight FROM public.assessmentmoduleweights WHERE code = $1",
+                moduleCode
                 );
 
             for (const auto& row : result) {

@@ -9,7 +9,7 @@
 #include <functional>
 #include "../module.h"
 #include "../moduleattempt.h"
-/*
+
 using namespace std;
 #include <vector>
 
@@ -26,86 +26,71 @@ const Assessment ex3("23", "exam", "check knowledge about cloud computing");
 
 
 //misconducts
-const Misconduct m1("1", "T1", "serious", "The module is capped at low 3");
-const Misconduct m2("1", "T1", "serious", "The module is set to 0");
-
-//defining assessment attempts
-AssessmentAttempt goodAttemptCoursework("T1", cwk1, 1, "original", false, 10);
-AssessmentAttempt submittedLateCoursework("T1", cwk1, 1, "original", true, 4);
-AssessmentAttempt failAttemptCoursework("T1", cwk2, 1, "original", false, 2);
-AssessmentAttempt repeatAttemptCoursework("T1", cwk2, 2, "referred", false, 12);
-AssessmentAttempt attemptExam("T1", ex1, 1, "original", false, 3);
-AssessmentAttempt failAttemptExam("T1", ex1, 2, "original", false, 8);
-AssessmentAttempt goodAttemptExam("T1", ex1, 1, "original", false, 9);
-AssessmentAttempt neutralAttemptExam("T1", ex1, 1, "original", false, 5);
-AssessmentAttempt attemptMisconductCoursework("T1", cwk3, 1, "original", false, 10, nullptr, nullptr, &m1);
-AssessmentAttempt attemptSeriousMisconductCoursework("T1", cwk3, 1, "original", false, 10, nullptr, nullptr, &m2);
-AssessmentAttempt attemptSeriousMisconductNotPassCoursework("T1", cwk3, 1, "original", false, 1, nullptr, nullptr, &m2);
-
+const Misconduct m1("1", "T1", "serious", "the module is capped at low 3");
+const Misconduct m2("1", "T1", "serious", "the module is set to zero");
 
 BOOST_AUTO_TEST_SUITE( moduleTests )
-
 
 //testing populating map
 BOOST_AUTO_TEST_CASE(assessmentWeightsMapTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
 
     BOOST_CHECK_EQUAL(assessmentList1.size(), 2);
 }
 
-//testing getting only final attempts
-BOOST_AUTO_TEST_CASE(allFirstTryTest) {
+//testing getting latest attempts
+BOOST_AUTO_TEST_CASE(allFirstAttemptsTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(goodAttemptCoursework);
-    attempts.push_back(attemptExam);
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     int expectedResult = 2;
-    int actualResult = moduleAttempt1.getFinalattempts().size();
+    int actualResult = moduleAttempt1.getLatestAttempts().size();
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
 
-BOOST_AUTO_TEST_CASE(oneFailAttemptTest) {
+BOOST_AUTO_TEST_CASE(oneSecondAttemptTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(failAttemptCoursework);
-    attempts.push_back(repeatAttemptCoursework);
-    attempts.push_back(attemptExam);
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 5);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     int expectedResult = 2;
-    int actualResult = moduleAttempt1.getFinalattempts().size();
+    int actualResult = moduleAttempt1.getLatestAttempts().size();
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
-}
 
-//check which attempt was added
-BOOST_AUTO_TEST_CASE(checkWhichAddedOneFailTest) {
-    AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
-
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(failAttemptCoursework));
-    attempts.push_back(std::ref(repeatAttemptCoursework));
-    attempts.push_back(std::ref(attemptExam));
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
-
+    //chech that needed attempt was added
     bool found = false;
-    for (const auto& attempt : moduleAttempt1.getFinalattempts()) {
-        if (attempt.get().getAssessment().getName() == repeatAttemptCoursework.getAssessment().getName() &&
-            attempt.get().getNumberOfAttempt() == repeatAttemptCoursework.getNumberOfAttempt()) {
+    for (const auto& attempt : moduleAttempt1.getLatestAttempts()) {
+        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
             found = true;
             break;
         }
@@ -113,23 +98,100 @@ BOOST_AUTO_TEST_CASE(checkWhichAddedOneFailTest) {
     BOOST_CHECK(found);
 }
 
-BOOST_AUTO_TEST_CASE(checkWhichAddedALlFailTest) {
+BOOST_AUTO_TEST_CASE(allSecondAttemptTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(failAttemptCoursework));
-    attempts.push_back(std::ref(repeatAttemptCoursework));
-    attempts.push_back(std::ref(attemptExam));
-    attempts.push_back(std::ref(failAttemptExam));
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 5);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
+    auto attempt4 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 16, nullptr, nullptr, nullptr, &cwk1);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+    attempts.push_back(attempt4);
 
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getLatestAttempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
+    int foundNeededAttempts=0;
+    for (const auto& attempt : moduleAttempt1.getLatestAttempts()) {
+        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
+            foundNeededAttempts++;
+        }
+        if(
+            attempt->getAssessment().getName() == attempt4->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt4->getNumberOfAttempt()){
+            foundNeededAttempts++;
+        }
+    }
+
+    BOOST_CHECK_EQUAL(foundNeededAttempts, 2);
+}
+
+
+//testing getting best attempts
+BOOST_AUTO_TEST_CASE(usualFirstAttemptsTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(SecondAttemptBetterTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 14);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 5);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
     bool found = false;
     for (const auto& attempt : moduleAttempt1.getFinalattempts()) {
-        if (attempt.get().getAssessment().getName() == repeatAttemptCoursework.getAssessment().getName() &&
-            attempt.get().getNumberOfAttempt() == repeatAttemptCoursework.getNumberOfAttempt()) {
+        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
             found = true;
             break;
         }
@@ -137,99 +199,480 @@ BOOST_AUTO_TEST_CASE(checkWhichAddedALlFailTest) {
     BOOST_CHECK(found);
 }
 
+BOOST_AUTO_TEST_CASE(SecondAttemptSameTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-//check aggregates
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 14);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
+    bool found = false;
+    for (const auto& attempt : moduleAttempt1.getFinalattempts()) {
+        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
+            found = true;
+            break;
+        }
+    }
+    BOOST_CHECK(found);
+}
+
+BOOST_AUTO_TEST_CASE(allSecondAttemptsBetterTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 5);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 8);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
+    auto attempt4 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 16, nullptr, nullptr, nullptr, &cwk1);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+    attempts.push_back(attempt4);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
+    int foundNeededAttempts=0;
+    for (const auto& attempt : moduleAttempt1.getFinalattempts()) {
+        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
+            foundNeededAttempts++;
+        }
+        if(
+            attempt->getAssessment().getName() == attempt4->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt4->getNumberOfAttempt()){
+            foundNeededAttempts++;
+        }
+    }
+
+    BOOST_CHECK_EQUAL(foundNeededAttempts, 2);
+}
+
+
+BOOST_AUTO_TEST_CASE(FirstAttemptBetterTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 14);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 5, nullptr, nullptr, nullptr, &ex1);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
+    bool found = false;
+    for (const auto& attempt : moduleAttempt1.getFinalattempts()) {
+        if (attempt->getAssessment().getName() == attempt2->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt2->getNumberOfAttempt()) {
+            found = true;
+            break;
+        }
+    }
+    BOOST_CHECK(found);
+}
+
+BOOST_AUTO_TEST_CASE(allFirstAttemptsBetterTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 9);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 9);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 6, nullptr, nullptr, nullptr, &ex1);
+    auto attempt4 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 6, nullptr, nullptr, nullptr, &cwk1);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+    attempts.push_back(attempt4);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
+    int foundNeededAttempts=0;
+    for (const auto& attempt : moduleAttempt1.getFinalattempts()) {
+        if (attempt->getAssessment().getName() == attempt1->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt1->getNumberOfAttempt()) {
+            foundNeededAttempts++;
+        }
+        if(
+            attempt->getAssessment().getName() == attempt1->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt1->getNumberOfAttempt()){
+            foundNeededAttempts++;
+        }
+    }
+
+    BOOST_CHECK_EQUAL(foundNeededAttempts, 2);
+}
+
+
+//assigning types
+
+BOOST_AUTO_TEST_CASE(AssignOriginalTypeTest) {
+    Module mod1("1111", "some module", 20);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 14);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.assignTypes();
+    std::string expectedResult = "original";
+    std::string actualResult = moduleAttempt1.getAttempts()[0]->getType();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(AssignOriginalTypeTestForFirstSit) {
+    Module mod1("1111", "some module", 20);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 2, false, 14);
+    attempt1->setFinalCode(&AssessmentCodes::S1);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.assignTypes();
+    std::string expectedResult = "original";
+    std::string actualResult = moduleAttempt1.getAttempts()[0]->getType();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(AssignRepeatTestForOne) {
+    Module mod1("1111", "some module", 20);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 14);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 6, nullptr, nullptr, nullptr, &cwk1);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", cwk2, 3,  false, 6, nullptr, nullptr, nullptr, &cwk1);
+    attempt1->setFinalCode(&AssessmentCodes::FA);
+    attempt2->setFinalCode(&AssessmentCodes::RE);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.assignTypes();
+
+    std::string expectedResult = "repeat";
+    std::string actualResult = moduleAttempt1.getAttempts()[1]->getType();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+BOOST_AUTO_TEST_CASE(AssignReferralTestForOneInThree) {
+    Module mod1("1111", "some module", 20);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 14);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 6, nullptr, nullptr, nullptr, &cwk1);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", cwk2, 3,  false, 6, nullptr, nullptr, nullptr, &cwk1);
+    attempt1->setFinalCode(&AssessmentCodes::FA);
+    attempt2->setFinalCode(&AssessmentCodes::RE);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.assignTypes();
+
+    std::string expectedResult = "referral";
+    std::string actualResult = moduleAttempt1.getAttempts()[2]->getType();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+//aggregate tests
 BOOST_AUTO_TEST_CASE(checkNormalAggregatelTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(goodAttemptCoursework));
-    attempts.push_back(std::ref(attemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 9);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 7);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     double actualResult = moduleAttempt1.calculateAggregate();
-    double expectedResult = 7.2;
+    double expectedResult = 8.2;
 
-     BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
+    BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
 }
 
 
 BOOST_AUTO_TEST_CASE(unusualPercentageTest) {
-     AssessmentWeightsMap assessmentList1;
-     assessmentList1.emplace(std::ref(cwk1), 85);
-     assessmentList1.emplace(std::ref(ex1), 15);
-     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 85);
+    assessmentList1.emplace(ex1, 15);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-     attempts.push_back(std::ref(goodAttemptCoursework));
-     attempts.push_back(std::ref(attemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 9);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 7);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
 
-     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
-     double actualResult = moduleAttempt1.calculateAggregate();
-     double expectedResult = 9.0;
+    double actualResult = moduleAttempt1.calculateAggregate();
+    double expectedResult = 8.7;
 
-     BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
+    BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
 }
+
 
 BOOST_AUTO_TEST_CASE(roundingUpTest) {
-     AssessmentWeightsMap assessmentList1;
-     assessmentList1.emplace(std::ref(cwk1), 45);
-     assessmentList1.emplace(std::ref(ex1), 55);
-     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 45);
+    assessmentList1.emplace(ex1, 55);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-     attempts.push_back(std::ref(goodAttemptCoursework));
-     attempts.push_back(std::ref(attemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
 
-     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
-     double actualResult = moduleAttempt1.calculateAggregate();
-     double expectedResult = 6.2;
+    double actualResult = moduleAttempt1.calculateAggregate();
+    double expectedResult = 5.4;
 
-     BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
+    BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
 }
 
 
+//when repeating/referral
+BOOST_AUTO_TEST_CASE(repeatingOriginalWeightningTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    assessmentList1.emplace(cwk2, 30);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 10, nullptr, nullptr, nullptr, &cwk1);
+    attempt3->setType("repeat");
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    double actualResult = moduleAttempt1.calculateAggregate();
+    double expectedResult = 7.6;
+
+    BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
+}
+
+BOOST_AUTO_TEST_CASE(usingFresherWeightingTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    assessmentList1.emplace(cwk2, 30);
+    assessmentList1.emplace(ex2, 70);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 10, nullptr, nullptr, nullptr, &cwk1);
+    auto attempt4 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 8, nullptr, nullptr, nullptr, &ex1);
+    attempt3->setType("repeat");
+    attempt4->setType("repeat");
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+    attempts.push_back(attempt4);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    double actualResult = moduleAttempt1.calculateAggregate();
+    double expectedResult = 8.6;
+
+    BOOST_CHECK_CLOSE( actualResult, expectedResult, percentageAccuracy );
+}
+
+//determine number of repeated
+BOOST_AUTO_TEST_CASE(noRepeatedTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    double actualResult = moduleAttempt1.numberOfRepeated();
+    double expectedResult = 0;
+
+    BOOST_CHECK_EQUAL( actualResult, expectedResult );
+}
+
+BOOST_AUTO_TEST_CASE(oneRepeatedTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 10, nullptr, nullptr, nullptr, &cwk1);
+    attempt3->setType("repeat");
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    double actualResult = moduleAttempt1.numberOfRepeated();
+    double expectedResult = 1;
+
+    BOOST_CHECK_EQUAL( actualResult, expectedResult );
+}
+
+BOOST_AUTO_TEST_CASE(allRepeatedTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", cwk2, 2,  false, 10, nullptr, nullptr, nullptr, &cwk1);
+    auto attempt4 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 8, nullptr, nullptr, nullptr, &ex1);
+    attempt3->setType("repeat");
+    attempt4->setType("repeat");
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+    attempts.push_back(attempt4);
+
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    double actualResult = moduleAttempt1.numberOfRepeated();
+    double expectedResult = 2;
+
+    BOOST_CHECK_EQUAL( actualResult, expectedResult );
+}
+
 //check all elements passed
-BOOST_AUTO_TEST_CASE(allPassedTest) {
-     AssessmentWeightsMap assessmentList1;
-     assessmentList1.emplace(std::ref(cwk1), 40);
-     assessmentList1.emplace(std::ref(ex1), 60);
-     Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+BOOST_AUTO_TEST_CASE(allRassedTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-     std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-     attempts.push_back(std::ref(goodAttemptCoursework));
-     attempts.push_back(std::ref(goodAttemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 5);
 
-     ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
 
-     bool actualResult = moduleAttempt1.checkAllElementsPassed();
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
 
-     bool expectedResult = true;
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    bool actualResult = moduleAttempt1.checkAllElementsPassed();
+    bool expectedResult = true;
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
 
-//one element didn't pass
 BOOST_AUTO_TEST_CASE(oneNotPassTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 40);
-    assessmentList1.emplace(std::ref(ex1), 60);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(goodAttemptCoursework));
-    attempts.push_back(std::ref(attemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 7);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 3);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     bool actualResult = moduleAttempt1.checkAllElementsPassed();
-
     bool expectedResult = false;
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
@@ -237,38 +680,44 @@ BOOST_AUTO_TEST_CASE(oneNotPassTest) {
 
 BOOST_AUTO_TEST_CASE(allNotPassTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 40);
-    assessmentList1.emplace(std::ref(ex1), 60);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(failAttemptCoursework));
-    attempts.push_back(std::ref(attemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 3);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 3);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     bool actualResult = moduleAttempt1.checkAllElementsPassed();
-
     bool expectedResult = false;
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
 
 
-//determine special pass
 BOOST_AUTO_TEST_CASE(notSpecialPassTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 90);
-    assessmentList1.emplace(std::ref(ex1), 10);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(failAttemptCoursework));
-    attempts.push_back(std::ref(neutralAttemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 9);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
-    moduleAttempt1.calculateAggregate();
-    moduleAttempt1.getGrade();
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     bool actualResult = moduleAttempt1.determinSpecialPass();
 
@@ -276,27 +725,170 @@ BOOST_AUTO_TEST_CASE(notSpecialPassTest) {
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
+
 
 BOOST_AUTO_TEST_CASE(specialPassTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(goodAttemptCoursework));
-    attempts.push_back(std::ref(attemptExam));
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 9);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 3);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
-    moduleAttempt1.calculateAggregate();
-    moduleAttempt1.getGrade();
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
     bool actualResult = moduleAttempt1.determinSpecialPass();
 
-    bool expectedResult = true;
+    bool expectedResult = false;
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
+
+BOOST_AUTO_TEST_CASE(notSpecialPassTestMoreThanOneFailed) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+    assessmentList1.emplace(ex2, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 10);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 3);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 1, false, 3);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    bool actualResult = moduleAttempt1.determinSpecialPass();
+
+    bool expectedResult = false;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+//number of not passed
+BOOST_AUTO_TEST_CASE(noFailsTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 10);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 5);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int actualResult = moduleAttempt1.numberOfNotPassed();
+
+    int expectedResult = 0;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(oneFailTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 10);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int actualResult = moduleAttempt1.numberOfNotPassed();
+
+    int expectedResult = 1;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allFailTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 2);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int actualResult = moduleAttempt1.numberOfNotPassed();
+
+    int expectedResult = 2;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+
+
+
+
+
+
+/*
+
+
+int ModuleAttempt::numberOfNotPassed(){
+    int notPassed=0;
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts) {
+        std::string attemptGrade = attempt->getGrade();
+        if(!gradeSystem.isGreaterThanThreshold(attemptGrade, "3LOW")){
+            notPassed++;
+        }
+    }
+    return notPassed;
+}
+
+
+
+
+
+
+
+
+
+//determine special pass
+
+
 
 //applyMisconduct
 BOOST_AUTO_TEST_CASE(cap3MisconductTest) {
