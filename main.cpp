@@ -11,23 +11,11 @@
 
 int main(){
     examBoard exboard;
-    exboard.retrieveAssessments();
-    exboard.retrieveModules();
-    exboard.retrieveStages();
-    exboard.retrieveCourses();
+
 
     std::cout<<"Time for vector!!!"<<std::endl;
 
-    std::vector<StudentRecord> studentsRecords;
-    std::vector<Student> students = exboard.retrieveStudents();
-    for (const auto& student : students) {
-
-
-        CourseAttempt* courseAttempt = exboard.retrieveStudentCourseAttept(student.getStudentNumber());
-        StudentRecord strecord(student, courseAttempt);
-        studentsRecords.push_back(strecord);
-    }
-
+    std::vector<StudentRecord> studentsRecords = exboard.loadStudentRecords();
 
 
     for(const auto& sr: studentsRecords){
@@ -95,9 +83,9 @@ int main(){
 
         std::cout << std::endl;
 
+    }}
 
 
-    }
 
 /*
     std::vector<Student> students = exboard.retrieveStudents();
@@ -221,7 +209,7 @@ int main(){
 
     std::cout << std::endl;
 */
-}
+
 
 
 

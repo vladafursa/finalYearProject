@@ -17,6 +17,7 @@ SOURCES += moduletests.cpp \
         ../nec.cpp \
         ../progressioncode.cpp \
         ../grades.cpp \
+        assessmenttests.cpp \
         coursetests.cpp \
         gradesystemtests.cpp \
         stagetests.cpp \

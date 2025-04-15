@@ -15,6 +15,7 @@
 #include "course.h"
 #include"courseattempt.h"
 #include "nec.h"
+#include "studentrecord.h"
 class examBoard
 {
 private:
@@ -26,8 +27,11 @@ private:
     std::vector<AssessmentAttempt> assessmentAttempts;
     std::vector<AssessmentAttempt> allAssessmentAttempts;
     std::vector<NEC> nec;
+    std::vector<StudentRecord> studentRecords;
 public:
     examBoard();
+    void preLoadInfoData();
+    std::vector<StudentRecord> loadStudentRecords();
     std::vector<NEC> retrieveNec();
     const NEC* retrieveNecForStudent(std::string referenceNumber);
     std::vector<Assessment> retrieveAssessments();
@@ -39,7 +43,7 @@ public:
     std::vector<Course> retrieveCourses();
     const Assessment& retrieveAssessmentByID(std::string providedID);
     const Stage& retrieveStageByID(std::string providedID);
-     const Course& retrieveCourseByID(std::string providedID);
+    const Course& retrieveCourseByID(std::string providedID);
     const Module& retrieveModuleByCode(std::string providedCode);
     std::string retrieveModuleType(std::string studentNumber, std::string moduleCode);
     std::vector<AssessmentAttempt> retrieveAssessmentAttemptsForStudent(std::string studentNumber);

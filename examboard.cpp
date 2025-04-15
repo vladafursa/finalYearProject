@@ -768,3 +768,23 @@ CourseAttempt* examBoard::retrieveStudentCourseAttept(std::string studentNumber)
 
     return nullptr;
 }
+
+
+
+void examBoard::preLoadInfoData(){
+    retrieveAssessments();
+    retrieveModules();
+    retrieveStages();
+    retrieveCourses();
+    retrieveStudents();
+}
+std::vector<StudentRecord> examBoard::loadStudentRecords(){
+    preLoadInfoData();
+    for (const auto& student : students) {
+        CourseAttempt* courseAttempt = retrieveStudentCourseAttept(student.getStudentNumber());
+        StudentRecord strecord(student, courseAttempt);
+        studentRecords.push_back(strecord);
+    }
+    return studentRecords;
+}
+

@@ -141,6 +141,11 @@ const AssessmentCode RC("RC", "Re-calculated");
 // Withdrawn codes
 const AssessmentCode WD("WD", "Withdrew");
 
+// Not submitted/attended
+const AssessmentCode NN("NN", "Not attended");
+const AssessmentCode NS("NS", "Not submitted");
+const AssessmentCode NE("NE", "Not ...");
+
 const std::set<const AssessmentCode*> FIRST_SIT_CODES = {
     &S1, &S2, &S3, &S4
 };

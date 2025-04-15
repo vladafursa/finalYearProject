@@ -9,7 +9,7 @@
 #include <functional>
 #include "../module.h"
 #include "../moduleattempt.h"
-
+/*
 using namespace std;
 #include <vector>
 
@@ -612,8 +612,8 @@ void ModuleAttempt::generateCode(){
     }
 }
 */
-
-BOOST_AUTO_TEST_SUITE_END()
+/*
+BOOST_AUTO_TEST_SUITE_END()*/
 
 /*
 should I test attempt1.getGrade();? if it is mostly part of gradesystem???

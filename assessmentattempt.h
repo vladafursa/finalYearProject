@@ -47,7 +47,7 @@ public:
     bool isSubmittedLate() const;
     int getGradePoints() const;
     std::string getGrade();
-    const AssessmentCode* getGinalCode() const;
+    const AssessmentCode* getFinalCode() const;
     const AssessmentCode* getCode() const;
     const NEC* getNec() const;
     const Misconduct* getMisconduct() const;
