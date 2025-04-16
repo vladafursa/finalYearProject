@@ -36,9 +36,6 @@ const ModuleCode PY("PY", "Pass repeat element");
 
 // Referral codes
 const ModuleCode RR("RR", "Referred");
-const ModuleCode RE("RE", "Referred by exam");
-const ModuleCode RK("RK", "Referred by coursework");
-const ModuleCode RT("RT", "Referred by test");
 const ModuleCode RM("RM", "Referred – contact Module Leader");
 const ModuleCode RW("RW", "Referred by reworking exam");
 
@@ -78,11 +75,15 @@ const std::set<const ModuleCode*> FIRST_SIT_CODES = {
     &S1, &S2, &S3, &S4
 };
 const std::set<const ModuleCode*> REFERRED_CODES = {
-    &RR, &RE, &RK, &RT, &RM, &RW
+    &RR, &RM, &RW
 };
 
 const std::set<const ModuleCode*> FAIL_CODES = {
     &FP, &F1, &FA, &FN, &FR, &FC, &FM, &FO
+};
+
+const std::set<const ModuleCode*> REPEAT_CODES = {
+   &FA, &FR, &FC, &FM, &FO
 };
 
 

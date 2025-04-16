@@ -8,20 +8,22 @@
 #include "stageattempt.h"
 #include "examboard.h"
 #include "studentrecord.h"
-
+using namespace std;
 int main(){
-    examBoard exboard;}
-/*
+    examBoard exboard;
+
 
     std::cout<<"Time for vector!!!"<<std::endl;
 
     std::vector<StudentRecord> studentsRecords = exboard.loadStudentRecords();
+        for(const auto& sr: studentsRecords){
+            sr.prepareData();
+        }
 
 
     for(const auto& sr: studentsRecords){
         std::cout<<sr.getStudent().getName()<<std::endl;
         std::cout<<sr.getCourseAttempt()->getCourse().getName();
-
 
         const std::vector<std::shared_ptr<StageAttempt>>& stageAttempts =sr.getCourseAttempt()->getAttempts();
 
@@ -32,16 +34,16 @@ int main(){
                 std::cout << module->getCode() << "        ";
             }
             std::cout << std::endl;
+            const std::vector<std::shared_ptr<ModuleAttempt>>& moduleAttempts =stageAttemptPtr->getAttempts();
 
-
-            for (const auto& moduleAttemptPtr : stageAttemptPtr->getAttempts()) {
+            for (const auto& moduleAttemptPtr : moduleAttempts) {
                 std::shared_ptr<ModuleAttempt> moduleAttempt = moduleAttemptPtr;
                 //   std::cout <<moduleAttempt->getModule().getCode()<< "   "<<moduleAttempt->getYear()<< std::endl;
 
                 const Module& module = moduleAttempt->getModule();
 
                 std::cout << "Module Code: " << module.getCode() << std::endl;
-
+/*
                 const AssessmentWeightsMap& weights = module.getAssessmentsWithWeights();
 
 
@@ -55,20 +57,27 @@ int main(){
                               << ", Weight: " << weight << std::endl;
                 }
 
+*/
 
-
-                moduleAttempt->calculateAggregate();
-                std::cout <<moduleAttempt->getAggregate()<< std::endl;
+                std::cout <<moduleAttempt->getAggregate()<< "    ";
+                if(moduleAttempt->getFinalCode()!=nullptr){
+                    std::cout<<moduleAttempt->getFinalCode()->getCode()<<std::endl;
+                }
+                if(moduleAttempt->getPossibleCodes().size()!=0){
+                    for(const auto& m : moduleAttempt->getPossibleCodes()){
+                        std::cout<<m->getCode()<<" ";
+                    }
+                }
+                std::cout << std::endl;
 
                 for(const auto& assessmentAttempt : moduleAttempt->getAttempts()){
                     std::cout<<assessmentAttempt->getAssessment().getId()<< " "<<assessmentAttempt->getGradePoints()<<"  ";
                     if(assessmentAttempt->getCode()!=nullptr){
                         std::cout<< assessmentAttempt->getCode()->getCode()<< "  ";
                     }
-                    if(assessmentAttempt->getGinalCode()!=nullptr){
-                        std::cout<< assessmentAttempt->getGinalCode()->getCode()<< "  ";
+                    if(assessmentAttempt->getFinalCode()!=nullptr){
+                        std::cout<< assessmentAttempt->getFinalCode()->getCode()<< "  ";
                     }
-                    assessmentAttempt->populatePossibleDecisions();
                     if(assessmentAttempt->getPossibleCodes().size()!=0){
                         for(const auto& a : assessmentAttempt->getPossibleCodes()){
                             std::cout<<a->getCode()<<" ";
@@ -77,16 +86,21 @@ int main(){
 
                     std::cout << std::endl;
                 }
+
+
                 std::cout << std::endl;
+
+
             }
         }
 
         std::cout << std::endl;
 
-    }}
+    }
 
 
-*/
+}
+
 /*
     std::vector<Student> students = exboard.retrieveStudents();
     for (const auto& student : students) {

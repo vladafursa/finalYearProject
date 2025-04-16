@@ -366,5 +366,44 @@ int StageAttempt::checkFail() {
     return containsFail;
 }
 
+void StageAttempt::setTypes(){
+    for (const auto& current : attempts) {
+        if (current->getNumberOfAttempt() == 1 || ModuleCodes::FIRST_SIT_CODES.contains(current->getFinalCode())) {
+            current->setType("original");
+            continue;
+        }
 
+        for (const auto& prev : attempts) {
+            bool sameModule= false;
+
+            const std::string currentCode = current->getModule().getCode();
+
+            const std::string prevCode = prev->getModule().getCode();
+
+            sameModule = (currentCode == prevCode);
+
+            if (sameModule &&
+                prev->getNumberOfAttempt() == current->getNumberOfAttempt() - 1) {
+
+                const ModuleCode* prevFinalCode = prev->getFinalCode();
+                if (prevFinalCode != nullptr) {
+
+                    for (const auto& code : ModuleCodes::REPEAT_CODES) {
+                        if (code->getCode() == prevFinalCode->getCode()) {
+                            current->setType("repeat");
+                            break;
+                        }
+                    }
+                    for (const auto& code : ModuleCodes::REFERRED_CODES) {
+                        if (code->getCode() == prevFinalCode->getCode()) {
+                            current->setType("referral");
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
 

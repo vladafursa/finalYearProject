@@ -1,6 +1,7 @@
 #ifndef STAGEATTEMPT_H
 #define STAGEATTEMPT_H
 #include "moduleattempt.h"
+#include "module.h"
 #include "stage.h"
 
 class StageAttempt
@@ -44,6 +45,7 @@ public:
     void setPossibleCodes( std::vector<const ProgressionCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
     void setRemainingCompensationCredits(int providedRemainingCredits);
+    void setTypes();
 
     //calculations
     std::vector<std::shared_ptr<ModuleAttempt>> getFinalattempts() const;

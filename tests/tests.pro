@@ -13,6 +13,8 @@ SOURCES += moduletests.cpp \
         ../misconduct.cpp \
         ../module.cpp \
         ../moduleattempt.cpp \
+        ../stage.cpp \
+         ../stageattempt.cpp \
         ../modulecode.cpp \
         ../nec.cpp \
         ../progressioncode.cpp \

@@ -339,6 +339,17 @@ bool ModuleAttempt::getHadMisconduct(){
 }
 
 bool ModuleAttempt::getHadNec() const{
+    bool hadNec = false;
+    for (const auto& attempt : attempts){
+        if (attempt->getNec()!=nullptr){
+            hadNec = true;
+        }
+    }
+    return hadNec;
+}
+
+
+bool ModuleAttempt::needFirstSeet() const{
     bool needFirstSeet = false;
     for (const auto& attempt : attempts){
         if(attempt->getFinalCode()!=nullptr){
@@ -353,6 +364,7 @@ bool ModuleAttempt::getHadNec() const{
     }
     return needFirstSeet;
 }
+
 
 void ModuleAttempt::applyMisconduct(){
     for (const auto& attempt : attempts){
@@ -412,6 +424,7 @@ void ModuleAttempt::generateCode(){
     else{
         passed = false;
         creditsEarned = 0;
+        populatePossibleDecisions();
         if (numberOfAttempt == 2){
             if (getHadNec() == false){
                 setFinalCode(&ModuleCodes::FN);
@@ -419,7 +432,6 @@ void ModuleAttempt::generateCode(){
             else{
                 if (type == "referral"){
                     setFinalCode(&ModuleCodes::F1);
-
                 }
                 else{
                     setFinalCode(&ModuleCodes::FP);
@@ -430,7 +442,7 @@ void ModuleAttempt::generateCode(){
                 setFinalCode(&ModuleCodes::FN);
         }
         else{
-                setFinalCode(&ModuleCodes::FP);
+            setFinalCode(&ModuleCodes::FP);
         }
     }
 }
@@ -460,7 +472,7 @@ void ModuleAttempt::populatePossibleDecisions(){
         }
     }
     posibleCodes.push_back(&ModuleCodes::DF);
-    if (getHadNec() == true && notPassed ==0){//another second sitting extension - next opportunity
+    if (needFirstSeet() == true && notPassed ==0){//another second sitting extension - next opportunity
         for (const auto& attempt : finalAttempts) {
              setFinalCode(&ModuleCodes::S1);
         }

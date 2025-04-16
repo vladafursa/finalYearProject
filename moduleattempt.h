@@ -84,6 +84,7 @@ public:
     std::vector<std::shared_ptr<AssessmentAttempt>> getLatestAttempts() const;
     void assignTypes();
     int numberOfRepeated();
+    bool needFirstSeet() const;
 };
 
 #endif // MODULEATTEMPT_H

@@ -28,8 +28,10 @@ const Assessment ex3("23", "exam", "check knowledge about cloud computing");
 //misconducts
 const Misconduct m1("1", "T1", "serious", "the module is capped at low 3");
 const Misconduct m2("1", "T1", "serious", "overall module grade is capped at zero");
+const Misconduct m3("1", "T1", "serious", "no credit given for the module");
+const Misconduct m4("1", "T1", "serious", "termination of studies");
 
-const NEC nextOpportunityNotUpheldNEC("N1", "T1", true, "next opportunity");
+const NEC nextOpportunityUpheldNEC("N1", "T1", true, "next opportunity");
 const NEC weekUpheldNEC("N1", "T1", true, "1 week");
 
 BOOST_AUTO_TEST_SUITE( moduleTests )
@@ -746,10 +748,11 @@ BOOST_AUTO_TEST_CASE(specialPassTest) {
     attempts.push_back(attempt2);
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
-
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.getGrade();
     bool actualResult = moduleAttempt1.determinSpecialPass();
 
-    bool expectedResult = false;
+    bool expectedResult = true;
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
@@ -1012,6 +1015,81 @@ BOOST_AUTO_TEST_CASE(allhaveMisconductTest) {
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
 
+BOOST_AUTO_TEST_CASE(noHaveNecTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1,  false, 16, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    bool actualResult = moduleAttempt1.getHadNec();
+
+    bool expectedResult = false;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(oneHaveNecTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1,  false, 16, nullptr, &weekUpheldNEC, nullptr, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    bool actualResult = moduleAttempt1.getHadNec();
+
+    bool expectedResult = true;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allhaveNecTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1,  false, 16, nullptr, &weekUpheldNEC, nullptr, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16, nullptr, &nextOpportunityUpheldNEC, nullptr, nullptr);
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    bool actualResult = moduleAttempt1.getHadNec();
+
+    bool expectedResult = true;
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
 
 
 BOOST_AUTO_TEST_CASE(noNecTest) {
@@ -1039,7 +1117,7 @@ BOOST_AUTO_TEST_CASE(noNecTest) {
 }
 
 
-BOOST_AUTO_TEST_CASE(oneNecTest) {
+BOOST_AUTO_TEST_CASE(oneNeedFirstSeetTest) {
     AssessmentWeightsMap assessmentList1;
     assessmentList1.emplace(cwk1, 40);
     assessmentList1.emplace(ex1, 20);
@@ -1057,14 +1135,14 @@ BOOST_AUTO_TEST_CASE(oneNecTest) {
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
-    bool actualResult = moduleAttempt1.getHadNec();
+    bool actualResult = moduleAttempt1.needFirstSeet();
 
     bool expectedResult = true;
 
     BOOST_CHECK_EQUAL(actualResult, expectedResult);
 }
 
-BOOST_AUTO_TEST_CASE(allhaveNecTest) {
+BOOST_AUTO_TEST_CASE(allNeedFirstSeetTest) {
     AssessmentWeightsMap assessmentList1;
     assessmentList1.emplace(cwk1, 40);
     assessmentList1.emplace(ex1, 20);
@@ -1083,7 +1161,7 @@ BOOST_AUTO_TEST_CASE(allhaveNecTest) {
 
     ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
 
-    bool actualResult = moduleAttempt1.getHadNec();
+    bool actualResult = moduleAttempt1.needFirstSeet();
 
     bool expectedResult = true;
 
@@ -1148,73 +1226,23 @@ BOOST_AUTO_TEST_CASE(noGradeMisconductTest) {
 
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-
-
-/*
-
-
-
-
-
-*/
-
-
-
-
-
-/*
-
-
-
-
-
-
-
-
-
-
-//applyMisconduct
-
-
-//cap 0 misconduct
-
-
-
-
-//generating codes
 BOOST_AUTO_TEST_CASE(passCappedMisconductTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk3), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(attemptMisconductCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
-    moduleAttempt1.calculateAggregate();
-    moduleAttempt1.generateCode();
-    moduleAttempt1.applyMisconduct();
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16, nullptr, nullptr, &m2, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
 
-    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
-    std::string expectedCode = "PB";
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
 
-    BOOST_CHECK_EQUAL(actualCode, expectedCode);
-}
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
 
-BOOST_AUTO_TEST_CASE(passAddCreditsOnlyMisconductTest) {
-    AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk3), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
-
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(attemptSeriousMisconductCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
-
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
     moduleAttempt1.applyMisconduct();
@@ -1225,21 +1253,26 @@ BOOST_AUTO_TEST_CASE(passAddCreditsOnlyMisconductTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
-BOOST_AUTO_TEST_CASE(notPassAddCreditsOnlyMisconductTest) {
+BOOST_AUTO_TEST_CASE(notPassNotFinalAttemptCappedMisconductTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk3), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(attemptSeriousMisconductNotPassCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 2, nullptr, nullptr, &m2, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 3);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
     moduleAttempt1.applyMisconduct();
-
 
     std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
     std::string expectedCode = "FC";
@@ -1247,18 +1280,88 @@ BOOST_AUTO_TEST_CASE(notPassAddCreditsOnlyMisconductTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
+BOOST_AUTO_TEST_CASE(noCreditsMisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
 
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16, nullptr, nullptr, &m3, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "FN";
+
+    int actualCredits = moduleAttempt1.getCreditsEarned();
+    int expectedCredits = 0;
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+    BOOST_CHECK_EQUAL(actualCredits, expectedCredits);
+}
+
+BOOST_AUTO_TEST_CASE(terminationOfStudiesMisconductTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 20);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16, nullptr, nullptr, &m4, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 4);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+    moduleAttempt1.applyMisconduct();
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "WD";
+
+    int actualCredits = moduleAttempt1.getCreditsEarned();
+    int expectedCredits = 0;
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+    BOOST_CHECK_EQUAL(actualCredits, expectedCredits);
+}
+
+
+//generating code tests
 BOOST_AUTO_TEST_CASE(usualPassDecisionTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(goodAttemptCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
 
@@ -1267,19 +1370,57 @@ BOOST_AUTO_TEST_CASE(usualPassDecisionTest) {
     std::string expectedCode = "PA";
 
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
+
+}
+
+BOOST_AUTO_TEST_CASE(specialPassDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 3);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.getGrade();
+    moduleAttempt1.generateCode();
+
+    std::cout<<"was special pass: "<<moduleAttempt1.determinSpecialPass();
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "PA";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+
 }
 
 BOOST_AUTO_TEST_CASE(referredPassDecisionTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(repeatAttemptCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "refered", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.setType("referral");
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
 
@@ -1290,17 +1431,25 @@ BOOST_AUTO_TEST_CASE(referredPassDecisionTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
+
 BOOST_AUTO_TEST_CASE(repeatedPassDecisionTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(repeatAttemptCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "repeated", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.setType("repeat");
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
 
@@ -1311,17 +1460,23 @@ BOOST_AUTO_TEST_CASE(repeatedPassDecisionTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
-BOOST_AUTO_TEST_CASE(repeatedAndRepeatedPassDecisionTest) {
+BOOST_AUTO_TEST_CASE(manyTriesPassDecisionTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk2), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(repeatAttemptCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 3, "repeated", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 3, "202425", attempts);
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
 
@@ -1332,17 +1487,24 @@ BOOST_AUTO_TEST_CASE(repeatedAndRepeatedPassDecisionTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
+
 BOOST_AUTO_TEST_CASE(submittedLatePassDecisionTest) {
     AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(std::ref(cwk1), 60);
-    assessmentList1.emplace(std::ref(ex1), 40);
-    Module mod1("1111", "some module", "202425", "core", 20, assessmentList1);
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
 
-    std::vector<std::reference_wrapper<AssessmentAttempt>> attempts;
-    attempts.push_back(std::ref(submittedLateCoursework));
-    attempts.push_back(std::ref(goodAttemptExam));
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
 
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "original", attempts);
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, true, 10);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 5);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
     moduleAttempt1.calculateAggregate();
     moduleAttempt1.generateCode();
 
@@ -1353,22 +1515,170 @@ BOOST_AUTO_TEST_CASE(submittedLatePassDecisionTest) {
     BOOST_CHECK_EQUAL(actualCode, expectedCode);
 }
 
+BOOST_AUTO_TEST_CASE(finalFailAfterSecondAttemptWithoutNECDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, true, 3);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 2, "202425", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "FN";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(finalFailAfterManyAttemptsDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, true, 3);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 3, "202425", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "FN";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+
+BOOST_AUTO_TEST_CASE(referredFailDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 3,  nullptr, &nextOpportunityUpheldNEC, nullptr, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 2, "202425", attempts);
+    moduleAttempt1.setType("referral");
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "F?";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+
+BOOST_AUTO_TEST_CASE(repeatedFailDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 0, nullptr, &nextOpportunityUpheldNEC, nullptr, nullptr);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 2, "202425", attempts);
+    moduleAttempt1.setType("repeat");
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "??";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+BOOST_AUTO_TEST_CASE(usualFailDecisionTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 40);
+    assessmentList1.emplace(ex1, 60);
+
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 0);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 2);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+    moduleAttempt1.calculateAggregate();
+    moduleAttempt1.generateCode();
+
+
+    std::string actualCode = moduleAttempt1.getFinalCode()->getCode();
+    std::string expectedCode = "??";
+
+    BOOST_CHECK_EQUAL(actualCode, expectedCode);
+}
+
+
+//populate possible decisions
+
+
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
 /*
- *
- * void ModuleAttempt::populatePossibleDecisions(){
+
+void ModuleAttempt::populatePossibleDecisions(){
     if (module.getType() == "optional"){
             posibleCodes.push_back(&ModuleCodes::FO);
     }
 
     int notPassed = 0;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts) {
-            std::string grade = attempt.get().getGrade();
+            std::string grade = attempt->getGrade();
             if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
             notPassed++;
         }
     }
-    if (notPassed>1){
+    if (notPassed>1){ //add referrals, all options + elements codes
         posibleCodes.push_back(&ModuleCodes::FA);
         posibleCodes.push_back(&ModuleCodes::FR);
         posibleCodes.push_back(&ModuleCodes::FM);
@@ -1379,53 +1689,119 @@ BOOST_AUTO_TEST_CASE(submittedLatePassDecisionTest) {
         }
     }
     posibleCodes.push_back(&ModuleCodes::DF);
-    if (getHadNec() == true){
+    if (getHadNec() == true && notPassed ==0){//another second sitting extension - next opportunity
         for (const auto& attempt : finalAttempts) {
-            if (attempt.get().getGradePoints() == 0){
-                 posibleCodes.push_back(&ModuleCodes::S1);
-                break;
-            }
+             setFinalCode(&ModuleCodes::S1);
         }
     }
 }
 
-
-void ModuleAttempt::generateCode(){
-    if (checkAllElementsPassed() || determinSpecialPass()){
-        passed = true;
-        creditsEarned=module.getCredits();
-
-        else if (getSubmittedLate()){
-            setFinalCode(&ModuleCodes::PL);
-        }
-        else{
-            setFinalCode(&ModuleCodes::PA);
-        }
-    }
-    else{
-        passed = false;
-        creditsEarned = 0;
-        if (numberOfAttempt == 2){
-            if (getHadNec() == false){
-                setFinalCode(&ModuleCodes::FN);
-            }
-            else{
-                if (type == "referred"){
-                    setFinalCode(&ModuleCodes::F1);
+void ModuleAttempt::referElements(){
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getLatestAttempts();//final
+    const ModuleCode* code = getFinalCode();
+    std::string stringCode = code->getCode();
+    if(stringCode=="RR"){
+        for (const auto& attempt : finalAttempts){
+             std::string grade = attempt->getGrade();
+             if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+                //final attempt
+                if(attempt->getNumberOfAttempt()==2){
+                    //RF
+                    attempt->setPossibleDecisions(&AssessmentCodes::RF);
+                }
+                else if(attempt->getAssessment().getType()=="Exam"){
+                    attempt->setPossibleDecisions(&AssessmentCodes::RE);
+                    attempt->setPossibleDecisions(&AssessmentCodes::RW);
+                }
+                else if(attempt->getAssessment().getType()=="Coursework"){
+                    attempt->setPossibleDecisions(&AssessmentCodes::RK);
+                }
+                else if(attempt->getAssessment().getType()=="Test"){
+                    attempt->setPossibleDecisions(&AssessmentCodes::RT);
                 }
                 else{
-                    setFinalCode(&ModuleCodes::FP);
+                    attempt->setPossibleDecisions(&AssessmentCodes::RM);
                 }
-            }
-        }
-        else if (numberOfAttempt > 2){
-                setFinalCode(&ModuleCodes::FN);
-        }
-        else{
-                setFinalCode(&ModuleCodes::FP);
+                attempt->setPossibleDecisions(&AssessmentCodes::RN);
+                attempt->setPossibleDecisions(&AssessmentCodes::DF);
+             }
         }
     }
 }
+
+void ModuleAttempt::failElements(){
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getLatestAttempts();
+    const ModuleCode* code = getFinalCode();
+    std::string stringCode = code->getCode();
+    if(stringCode=="FA"){
+        for (const auto& attempt : finalAttempts){
+             std::string grade = attempt->getGrade();
+             if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+                attempt->setPossibleDecisions(&AssessmentCodes::FA);
+                attempt->setPossibleDecisions(&AssessmentCodes::FR);
+                attempt->setPossibleDecisions(&AssessmentCodes::DF);
+            }
+        }
+    if(stringCode=="FM"){
+            for (const auto& attempt : finalAttempts){
+                std::string grade = attempt->getGrade();
+                if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+                    attempt->setPossibleDecisions(&AssessmentCodes::FW);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FR);
+                    attempt->setPossibleDecisions(&AssessmentCodes::DF);
+                }
+            }
+        }
+    if (stringCode=="FM"){
+            for (const auto& attempt : finalAttempts){
+                std::string grade = attempt->getGrade();
+                if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+                    attempt->setPossibleDecisions(&AssessmentCodes::FA);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FW);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FR);
+                    attempt->setPossibleDecisions(&AssessmentCodes::DF);
+                }
+            }
+        }
+    }
+    if (stringCode=="FO"){
+        for (const auto& attempt : finalAttempts){
+            std::string grade = attempt->getGrade();
+            if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+                attempt->setPossibleDecisions(&AssessmentCodes::FO);
+                attempt->setPossibleDecisions(&AssessmentCodes::DF);
+            }
+        }
+    }
+}
+
+
+void ModuleAttempt::transferMisconduct(){
+    for (size_t i = 0; i < attempts.size(); ++i) {
+        auto& first = attempts[i];
+        std::string firstAssessmentId;
+        if(first->getOriginalAttempt()!=nullptr){
+            firstAssessmentId = first->getOriginalAttempt()->getId();
+        }
+        else{
+            firstAssessmentId = first->getAssessment().getId();
+        }
+
+        int firstAssessmentNumber = first->getNumberOfAttempt();
+        if (first->getMisconduct() != nullptr) {
+            for (size_t j = i + 1; j < attempts.size(); ++j) {
+                auto& second = attempts[j];
+                std::string secondAssessmentId = second->getOriginalAttempt()->getId();
+                int secondAssessmentNumber = second->getNumberOfAttempt();
+                if (firstAssessmentId == secondAssessmentId && firstAssessmentNumber<secondAssessmentNumber) {
+                    second->setMisconduct(first->getMisconduct());
+                }
+            }
+        }
+    }
+}
+
+
 */
 /*
 BOOST_AUTO_TEST_SUITE_END()*/
