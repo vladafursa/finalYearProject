@@ -30,16 +30,16 @@ bool StageAttempt::getPassed() const{
     return passed;
 }
 
-/*
+
 int StageAttempt::getCreditsEarned() {
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     creditsEarned = 0;
     for (const auto& attempt : finalAttempts) {
-        creditsEarned+=creditsEarned+attempt.get().getCreditsEarned();
+        creditsEarned+=creditsEarned+attempt->getCreditsEarned();
     }
     return creditsEarned;
 }
-*/
+
 const ProgressionCode* StageAttempt::getFinalCode() const{
     return finalCode;
 }
@@ -90,45 +90,48 @@ void StageAttempt::setPossibleCodes(std::vector<const ProgressionCode*>& provide
 void StageAttempt::setRemainingCompensationCredits(int providedRemainingCredits){
     remainingCompensationCredits = providedRemainingCredits;
 }
-/*
+
 //calculations
 //getting only latest attempts
-std::vector<std::reference_wrapper<ModuleAttempt>> StageAttempt::getFinalattempts() const {//модуль с лучшими попытками
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts;
+std::vector<std::shared_ptr<ModuleAttempt>> StageAttempt::getFinalattempts() const {
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts;
     const auto& modules = stage.getModules();
     const auto& moduleAttempts = getAttempts();
 
     for (const auto& module : modules) {
-        std::string moduleCode = module.get().getCode();
-        ModuleAttempt* latestAttempt = nullptr;
+        std::string moduleCode = module->getCode();
+        std::shared_ptr<ModuleAttempt> latestAttempt = nullptr;
         int maxNumberOfAttempt = 0;
 
         for (const auto& attempt : moduleAttempts) {
-            std::string attemptModuleCode = attempt.get().getModule().getCode();
-            int numberOfModuleAttempt = attempt.get().getNumberOfAttempt();
+            std::string attemptModuleCode = attempt->getModule().getCode();
+            int numberOfModuleAttempt = attempt->getNumberOfAttempt();
 
-            if (attemptModuleCode == moduleCode &&  numberOfModuleAttempt > maxNumberOfAttempt) {
-                maxNumberOfAttempt =  numberOfModuleAttempt;
-                latestAttempt = &attempt.get();
+            if (attemptModuleCode == moduleCode && numberOfModuleAttempt > maxNumberOfAttempt) {
+                maxNumberOfAttempt = numberOfModuleAttempt;
+                latestAttempt = attempt;
             }
         }
-        finalAttempts.push_back(*latestAttempt);
+
+        if (latestAttempt) {
+            finalAttempts.push_back(latestAttempt);
+        }
     }
+
     return finalAttempts;
 }
 
-
 double StageAttempt::calculateAggregate(){
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+   std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     aggregate = 0;
     const auto& modules = stage.getModules();
     for (const auto& module : modules) {
-        std::string moduleCode =  module.get().getCode();
-        double weightingOfModule = module.get().getCredits() / stage.getCredits();
+        std::string moduleCode =  module->getCode();
+        double weightingOfModule = module->getCredits() / stage.getCredits();
 
         for (const auto& attempt : finalAttempts) {
-            std::string attemptModuleCode = attempt.get().getModule().getCode();
-            int gradePoints = std::ceil(attempt.get().getAggregate());
+            std::string attemptModuleCode = attempt->getModule().getCode();
+            int gradePoints = std::ceil(attempt->getAggregate());
 
             if (attemptModuleCode == moduleCode) {
                 aggregate+=gradePoints*weightingOfModule;
@@ -140,11 +143,11 @@ double StageAttempt::calculateAggregate(){
 }
 
 bool StageAttempt::checkAllModulesPassed() {
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     int numberOfPassed = 0;
 
     for (const auto& attempt : finalAttempts) {
-        const ModuleCode* code = attempt.get().getFinalCode();
+        const ModuleCode* code = attempt->getFinalCode();
         std::string stringCode = code->getCode();
         for (const auto* passCode : ModuleCodes::PASS_CODES) {
             if (stringCode == passCode->getCode()) {
@@ -155,55 +158,52 @@ bool StageAttempt::checkAllModulesPassed() {
     }
     return numberOfPassed == finalAttempts.size();
 }
-/*
+
 //determine which can be compensated
 void StageAttempt::determinCompensationPass(){
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     aggregate = calculateAggregate();
     grade = gradeSystem.assignGrade(aggregate);
     if (gradeSystem.isGreaterThanThreshold(grade, "3LOW") && !checkAllModulesPassed()){
         for (const auto& attempt : finalAttempts){
-            std::string moduleGrade = attempt.get().getGrade();
+            std::string moduleGrade = attempt->getGrade();
             if(moduleGrade =="FMARG"){
-                if(attempt.get().getModule().getCredits()<remainingCompensationCredits){
-                    if(attempt.get().getType() == "original"){
-                        attempt.get().setPossibleDecisions(&ModuleCodes::PC);
+                if(attempt->getModule().getCredits()<remainingCompensationCredits){
+                    if(attempt->getType() == "original"){
+                        attempt->setPossibleDecisions(&ModuleCodes::PC);
                     }
-                    else if (attempt.get().getType() == "referred"){
-                        attempt.get().setPossibleDecisions(&ModuleCodes::PR);
+                    else if (attempt->getType() == "referred"){
+                        attempt->setPossibleDecisions(&ModuleCodes::PR);
                     }
                     else{
-                        attempt.get().setPossibleDecisions(&ModuleCodes::PK);
+                        attempt->setPossibleDecisions(&ModuleCodes::PK);
                     }
                 }
             }
-            if(gradeSystem.isGreaterThanThreshold(moduleGrade, "3LOW") && !attempt.get().getPassed() && attempt.get().numberOfNotPassed()<=1){
-                for(const auto& assessmentAttempt : attempt.get().getFinalattempts()){
-                    if (assessmentAttempt.get().getGrade()=="FMID"){
+            if(gradeSystem.isGreaterThanThreshold(moduleGrade, "3LOW") && !attempt->getPassed() && attempt->numberOfNotPassed()<=1){
+                for(const auto& assessmentAttempt : attempt->getFinalattempts()){
+                    if (assessmentAttempt->getGrade()=="FMID"){
                         //compensation for module code
-                        if(attempt.get().getType() == "original"){
-                            attempt.get().setPossibleDecisions(&ModuleCodes::PC);
+                        if(attempt->getType() == "original"){
+                            attempt->setPossibleDecisions(&ModuleCodes::PC);
                         }
-                        else if (attempt.get().getType() == "referred"){
-                            attempt.get().setPossibleDecisions(&ModuleCodes::PR);
+                        else if (attempt->getType() == "referred"){
+                            attempt->setPossibleDecisions(&ModuleCodes::PR);
                         }
                         else{
-                            attempt.get().setPossibleDecisions(&ModuleCodes::PK);
+                            attempt->setPossibleDecisions(&ModuleCodes::PK);
                         }
 
                         //compensation for assessment code
-                        if(assessmentAttempt.get().getType() == "original"){
-                            assessmentAttempt.get().setPossibleDecisions(&AssessmentCodes::PC);
+                        if(assessmentAttempt->getType() == "original"){
+                            assessmentAttempt->setPossibleDecisions(&AssessmentCodes::PC);
                         }
-                        else if (assessmentAttempt.get().getType() == "referred"){
-                            assessmentAttempt.get().setPossibleDecisions(&AssessmentCodes::PR);
+                        else if (assessmentAttempt->getType() == "referred"){
+                            assessmentAttempt->setPossibleDecisions(&AssessmentCodes::PR);
                         }
                         else{
-                            assessmentAttempt.get().setPossibleDecisions(&AssessmentCodes::PK);
+                            assessmentAttempt->setPossibleDecisions(&AssessmentCodes::PK);
                         }
-
-
-
                     }
                 }
             }
@@ -212,28 +212,28 @@ void StageAttempt::determinCompensationPass(){
 }
 
 void StageAttempt::applyCompensation(){
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     int limit =  stage.getLimitOfCredits();
     for (const auto& attempt : finalAttempts) {
-        attempt.get().setPassed(true);
-        const ModuleCode* code = attempt.get().getFinalCode();
+        attempt->setPassed(true);
+        const ModuleCode* code = attempt->getFinalCode();
         std::string stringCode = code->getCode();
         if (stringCode == "PC" || stringCode == "PR" || stringCode == "PK"){
             bool assessmentCompensation = false;
-            for (const auto& assessmentAttempt : attempt.get().getFinalattempts()) {
-                const AssessmentCode* acode = assessmentAttempt.get().getCode();
+            for (const auto& assessmentAttempt : attempt->getFinalattempts()) {
+                const AssessmentCode* acode = assessmentAttempt->getCode();
                 std::string aCode = acode->getCode();
                 if (aCode == "PC" || aCode == "PR" || aCode == "PK"){
                     assessmentCompensation = true;
-                    const auto& assessments = attempt.get().getModule().getAssessmentsWithWeights();
+                    const auto& assessments = attempt->getModule().getAssessmentsWithWeights();
                     for (const auto& assessment : assessments) {
-                        std::string assessmentId = assessment.first.get().getId();
+                        std::string assessmentId = assessment.first.getId();
                         int weightingOfAssessment = assessment.second;
 
-                            std::string attemptAssessmentId = assessmentAttempt.get().getAssessment().getId();
+                            std::string attemptAssessmentId = assessmentAttempt->getAssessment().getId();
 
                             if (attemptAssessmentId == assessmentId) {
-                                limit=limit - attempt.get().getModule().getCredits()*weightingOfAssessment/100.0;
+                                limit=limit - attempt->getModule().getCredits()*weightingOfAssessment/100.0;
                         }
                     }
                 }
@@ -241,17 +241,17 @@ void StageAttempt::applyCompensation(){
             if (assessmentCompensation == false){
 
 
-            limit = limit - attempt.get().getModule().getCredits();}
+            limit = limit - attempt->getModule().getCredits();}
         }
     }
     remainingCompensationCredits = limit;
 }
 
 void StageAttempt::applyMisconducts(){
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts){
-        if(attempt.get().getHadMisconduct() == true){
-             attempt.get().applyMisconduct();
+        if(attempt->getHadMisconduct() == true){
+             attempt->applyMisconduct();
         }
     }
 }
@@ -260,7 +260,7 @@ void StageAttempt::applyMisconducts(){
 
 
 void StageAttempt::generateCode(){
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>>finalAttempts = getFinalattempts();
     if(checkAllModulesPassed()){
         if (stage.getYear()==1){
             setFinalCode(&ProgressionCodes::P1);
@@ -274,7 +274,7 @@ void StageAttempt::generateCode(){
     }
     else if(checkFirstSeats()!=0 && checkFail()==0 && checkReferred()==0){
         for (const auto& attempt : finalAttempts) {
-            const ModuleCode* code = attempt.get().getFinalCode();
+            const ModuleCode* code = attempt->getFinalCode();
             std::string stringCode = code->getCode();
             for (const auto* fsCode : ModuleCodes::FIRST_SIT_CODES) {
                 if (stringCode == fsCode->getCode()) {
@@ -319,10 +319,10 @@ void StageAttempt::generateCode(){
 }
 
 int StageAttempt::checkFirstSeats() {
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     int containsFirstSeat = 0;
     for (const auto& attempt : finalAttempts) {
-        const ModuleCode* code = attempt.get().getFinalCode();
+        const ModuleCode* code = attempt->getFinalCode();
         std::string stringCode = code->getCode();
         for (const auto* fsCode : ModuleCodes::FIRST_SIT_CODES) {
             if (stringCode == fsCode->getCode()) {
@@ -335,10 +335,10 @@ int StageAttempt::checkFirstSeats() {
 }
 
 int StageAttempt::checkReferred() {
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     int containsReferred = 0;
     for (const auto& attempt : finalAttempts) {
-        const ModuleCode* code = attempt.get().getFinalCode();
+        const ModuleCode* code = attempt->getFinalCode();
         std::string stringCode = code->getCode();
         for (const auto* rfCode : ModuleCodes::REFERRED_CODES) {
             if (stringCode == rfCode->getCode()) {
@@ -351,10 +351,10 @@ int StageAttempt::checkReferred() {
 }
 
 int StageAttempt::checkFail() {
-    std::vector<std::reference_wrapper<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     int containsFail = 0;
     for (const auto& attempt : finalAttempts) {
-        const ModuleCode* code = attempt.get().getFinalCode();
+        const ModuleCode* code = attempt->getFinalCode();
         std::string stringCode = code->getCode();
         for (const auto* rfCode : ModuleCodes::FAIL_CODES) {
             if (stringCode == rfCode->getCode()) {
@@ -367,4 +367,4 @@ int StageAttempt::checkFail() {
 }
 
 
-*/
+

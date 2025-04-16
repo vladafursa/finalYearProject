@@ -28,7 +28,7 @@ public:
     const std::vector<std::shared_ptr<ModuleAttempt>>& getAttempts() const;
     double getAggregate() const;
     bool getPassed() const;
-  //  int getCreditsEarned();
+    int getCreditsEarned();
     const ProgressionCode* getFinalCode() const;
     const std::vector<const ProgressionCode*>& getPossibleCodes() const;
     std::string getGrade();
@@ -44,9 +44,9 @@ public:
     void setPossibleCodes( std::vector<const ProgressionCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
     void setRemainingCompensationCredits(int providedRemainingCredits);
-/*
+
     //calculations
-    std::vector<std::reference_wrapper<ModuleAttempt>> getFinalattempts() const;
+    std::vector<std::shared_ptr<ModuleAttempt>> getFinalattempts() const;
     double calculateAggregate();
     bool checkAllModulesPassed();
     void generateCode();
@@ -58,7 +58,7 @@ public:
     int checkReferred();
     int checkFirstSeats() ;
     int checkFail() ;
-*/
+
 };
 
 #endif // STAGEATTEMPT_H

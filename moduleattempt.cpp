@@ -317,7 +317,78 @@ bool ModuleAttempt::determinSpecialPass(){
     return canPass;
 }
 
-/*
+bool ModuleAttempt::getSubmittedLate(){
+    submittedLate = false;
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    for (const auto& attempt : finalAttempts){
+        if (attempt->isSubmittedLate() == true){
+            submittedLate = true;
+        }
+    }
+    return submittedLate;
+}
+
+bool ModuleAttempt::getHadMisconduct(){
+    hadMisconduct = false;
+    for (const auto& attempt : attempts){
+        if (attempt->getMisconduct()!=nullptr){
+            hadMisconduct = true;
+        }
+    }
+    return hadMisconduct;
+}
+
+bool ModuleAttempt::getHadNec() const{
+    bool needFirstSeet = false;
+    for (const auto& attempt : attempts){
+        if(attempt->getFinalCode()!=nullptr){
+            const AssessmentCode* code = attempt->getFinalCode();
+            std::string stringCode = code->getCode();
+            for (const auto* fsCode : AssessmentCodes::FIRST_SIT_CODES) {
+                if (stringCode == fsCode->getCode()) {
+                    needFirstSeet = true;
+                }
+            }
+        }
+    }
+    return needFirstSeet;
+}
+
+void ModuleAttempt::applyMisconduct(){
+    for (const auto& attempt : attempts){
+        if (attempt->getMisconduct()!=nullptr){
+            if (attempt->getMisconduct()->getOutcome()=="overall module grade is capped at zero"){
+                grade = "ZERO";
+                aggregate = 0;
+                if(passed == true){
+                    setFinalCode(&ModuleCodes::PJ);
+                    attempt->setCode(&AssessmentCodes::PJ);
+                }
+                else{
+                    if(numberOfAttempt<2){
+                        setFinalCode(&ModuleCodes::FC);
+                        attempt->setCode(&AssessmentCodes::FC);
+                    }
+                }
+            }
+            else if(attempt->getMisconduct()->getOutcome()=="no credit given for the module"){
+                creditsEarned=0;
+                setFinalCode(&ModuleCodes::FN);
+                attempt->setCode(&AssessmentCodes::FN);
+            }
+            else if(attempt->getMisconduct()->getOutcome()=="termination of studies"){
+                creditsEarned=0;
+                setFinalCode(&ModuleCodes::WD);
+            }
+            else {
+                attempt->applyMisconduct();
+            }
+        }
+    }
+}
+
+
+
 void ModuleAttempt::generateCode(){
     if (checkAllElementsPassed() || determinSpecialPass()){
         passed = true;
@@ -325,10 +396,10 @@ void ModuleAttempt::generateCode(){
         if (numberOfAttempt > 2){
             setFinalCode(&ModuleCodes::PX);
         }
-        else if (type == "refered") {
+        else if (type == "referral") {
             setFinalCode(&ModuleCodes::PR);
         }
-        else if (type == "repeated") {
+        else if (type == "repeat") {
             setFinalCode(&ModuleCodes::PF);
         }
         else if (getSubmittedLate()){
@@ -346,7 +417,7 @@ void ModuleAttempt::generateCode(){
                 setFinalCode(&ModuleCodes::FN);
             }
             else{
-                if (type == "referred"){
+                if (type == "referral"){
                     setFinalCode(&ModuleCodes::F1);
 
                 }
@@ -365,51 +436,15 @@ void ModuleAttempt::generateCode(){
 }
 
 
-
-
-int ModuleAttempt::numberOfNotPassed(){
-    int notPassed=0;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
-    for (const auto& attempt : finalAttempts) {
-        std::string attemptGrade = attempt.get().getGrade();
-        if(!gradeSystem.isGreaterThanThreshold(attemptGrade, "3LOW")){
-            notPassed++;
-        }
-    }
-    return notPassed;
-}
-
-bool ModuleAttempt::getHadMisconduct(){
-    hadMisconduct = false;
-    for (const auto& attempt : attempts){
-        if (attempt.get().getMisconduct()!=nullptr){
-            hadMisconduct = true;
-        }
-    }
-    return hadMisconduct;
-}
-
-bool ModuleAttempt::getSubmittedLate(){
-    submittedLate = false;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
-    for (const auto& attempt : finalAttempts){
-        if (attempt.get().isSubmittedLate() == true){
-            hadMisconduct = true;
-        }
-    }
-    return hadMisconduct;
-}
-
-
 void ModuleAttempt::populatePossibleDecisions(){
     if (module.getType() == "optional"){
             posibleCodes.push_back(&ModuleCodes::FO);
     }
 
     int notPassed = 0;
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts) {
-            std::string grade = attempt.get().getGrade();
+            std::string grade = attempt->getGrade();
             if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
             notPassed++;
         }
@@ -433,130 +468,79 @@ void ModuleAttempt::populatePossibleDecisions(){
 }
 
 void ModuleAttempt::referElements(){
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getLatestAttempts();//final
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getLatestAttempts();//final
     const ModuleCode* code = getFinalCode();
     std::string stringCode = code->getCode();
     if(stringCode=="RR"){
         for (const auto& attempt : finalAttempts){
-             std::string grade = attempt.get().getGrade();
+             std::string grade = attempt->getGrade();
              if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
                 //final attempt
-                if(attempt.get().getNumberOfAttempt()==2){
+                if(attempt->getNumberOfAttempt()==2){
                     //RF
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RF);
+                    attempt->setPossibleDecisions(&AssessmentCodes::RF);
                 }
-                else if(attempt.get().getAssessment().getType()=="exam"){
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RE);
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RW);
+                else if(attempt->getAssessment().getType()=="Exam"){
+                    attempt->setPossibleDecisions(&AssessmentCodes::RE);
+                    attempt->setPossibleDecisions(&AssessmentCodes::RW);
                 }
-                else if(attempt.get().getAssessment().getType()=="coursework"){
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RK);
+                else if(attempt->getAssessment().getType()=="Coursework"){
+                    attempt->setPossibleDecisions(&AssessmentCodes::RK);
                 }
-                else if(attempt.get().getAssessment().getType()=="test"){
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RT);
-                }
-                else if(attempt.get().getAssessment().getType()=="test"){
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RT);
+                else if(attempt->getAssessment().getType()=="Test"){
+                    attempt->setPossibleDecisions(&AssessmentCodes::RT);
                 }
                 else{
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::RM);
+                    attempt->setPossibleDecisions(&AssessmentCodes::RM);
                 }
-                attempt.get().setPossibleDecisions(&AssessmentCodes::RN);
-                attempt.get().setPossibleDecisions(&AssessmentCodes::DF);
+                attempt->setPossibleDecisions(&AssessmentCodes::RN);
+                attempt->setPossibleDecisions(&AssessmentCodes::DF);
              }
         }
     }
 }
 
 void ModuleAttempt::failElements(){
-    std::vector<std::reference_wrapper<AssessmentAttempt>> finalAttempts = getLatestAttempts();
+    std::vector<std::shared_ptr<AssessmentAttempt>> finalAttempts = getLatestAttempts();
     const ModuleCode* code = getFinalCode();
     std::string stringCode = code->getCode();
     if(stringCode=="FA"){
         for (const auto& attempt : finalAttempts){
-             std::string grade = attempt.get().getGrade();
+             std::string grade = attempt->getGrade();
              if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-                attempt.get().setPossibleDecisions(&AssessmentCodes::FA);
-                attempt.get().setPossibleDecisions(&AssessmentCodes::FR);
-                attempt.get().setPossibleDecisions(&AssessmentCodes::DF);
+                attempt->setPossibleDecisions(&AssessmentCodes::FA);
+                attempt->setPossibleDecisions(&AssessmentCodes::FR);
+                attempt->setPossibleDecisions(&AssessmentCodes::DF);
             }
         }
     if(stringCode=="FM"){
             for (const auto& attempt : finalAttempts){
-                std::string grade = attempt.get().getGrade();
+                std::string grade = attempt->getGrade();
                 if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::FW);
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::FR);
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::DF);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FW);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FR);
+                    attempt->setPossibleDecisions(&AssessmentCodes::DF);
                 }
             }
         }
     if (stringCode=="FM"){
             for (const auto& attempt : finalAttempts){
-                std::string grade = attempt.get().getGrade();
+                std::string grade = attempt->getGrade();
                 if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::FA);
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::FW);
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::FR);
-                    attempt.get().setPossibleDecisions(&AssessmentCodes::DF);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FA);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FW);
+                    attempt->setPossibleDecisions(&AssessmentCodes::FR);
+                    attempt->setPossibleDecisions(&AssessmentCodes::DF);
                 }
             }
         }
     }
     if (stringCode=="FO"){
         for (const auto& attempt : finalAttempts){
-            std::string grade = attempt.get().getGrade();
+            std::string grade = attempt->getGrade();
             if(!gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-                attempt.get().setPossibleDecisions(&AssessmentCodes::FO);
-                attempt.get().setPossibleDecisions(&AssessmentCodes::DF);
-            }
-        }
-    }
-}
-
-
-bool ModuleAttempt::getHadNec() const{
-    bool needFirstSeet = false;
-    for (const auto& attempt : attempts){
-        const AssessmentCode* code = attempt.get().getCode();
-        std::string stringCode = code->getCode();
-        for (const auto* fsCode : AssessmentCodes::FIRST_SIT_CODES) {
-            if (stringCode == fsCode->getCode()) {
-                needFirstSeet = true;
-            }
-        }
-    }
-    return needFirstSeet;
-}
-
-void ModuleAttempt::applyMisconduct(){
-    for (const auto& attempt : attempts){
-        if (attempt.get().getMisconduct()!=nullptr){
-            if (attempt.get().getMisconduct()->getOutcome()=="overall module grade is capped at zero"){
-                grade = "ZERO";
-                aggregate = 0;
-                if(passed == true){
-                    setFinalCode(&ModuleCodes::PJ);
-                    attempt.get().setCode(&AssessmentCodes::PJ);
-                }
-                else{
-                    if(numberOfAttempt<2){
-                        setFinalCode(&ModuleCodes::FC);
-                        attempt.get().setCode(&AssessmentCodes::FC);
-                    }
-                }
-            }
-            else if(attempt.get().getMisconduct()->getOutcome()=="no credit given for the module"){
-                creditsEarned=0;
-                setFinalCode(&ModuleCodes::FN);
-                attempt.get().setCode(&AssessmentCodes::FN);
-            }
-            else if(attempt.get().getMisconduct()->getOutcome()=="termination of studies"){
-                creditsEarned=0;
-                setFinalCode(&ModuleCodes::WD);
-            }
-            else {
-               attempt.get().applyMisconduct();
+                attempt->setPossibleDecisions(&AssessmentCodes::FO);
+                attempt->setPossibleDecisions(&AssessmentCodes::DF);
             }
         }
     }
@@ -565,20 +549,27 @@ void ModuleAttempt::applyMisconduct(){
 
 void ModuleAttempt::transferMisconduct(){
     for (size_t i = 0; i < attempts.size(); ++i) {
-        auto& first = attempts[i].get();
-        std::string firstAssessmentId = first.getAssessment().getId();
-        int firstAssessmentNumber = first.getNumberOfAttempt();
-        if (first.getMisconduct() != nullptr) {
+        auto& first = attempts[i];
+        std::string firstAssessmentId;
+        if(first->getOriginalAttempt()!=nullptr){
+            firstAssessmentId = first->getOriginalAttempt()->getId();
+        }
+        else{
+            firstAssessmentId = first->getAssessment().getId();
+        }
+
+        int firstAssessmentNumber = first->getNumberOfAttempt();
+        if (first->getMisconduct() != nullptr) {
             for (size_t j = i + 1; j < attempts.size(); ++j) {
-                auto& second = attempts[j].get();
-                std::string secondAssessmentId = second.getAssessment().getId();
-                int secondAssessmentNumber = second.getNumberOfAttempt();
+                auto& second = attempts[j];
+                std::string secondAssessmentId = second->getOriginalAttempt()->getId();
+                int secondAssessmentNumber = second->getNumberOfAttempt();
                 if (firstAssessmentId == secondAssessmentId && firstAssessmentNumber<secondAssessmentNumber) {
-                    second.setMisconduct(first.getMisconduct());
+                    second->setMisconduct(first->getMisconduct());
                 }
             }
         }
     }
 }
 
-*/
+

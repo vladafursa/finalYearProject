@@ -41,12 +41,12 @@ public:
     void setFinalCode(const AwardCode* providedProgressionCode);
     void setPossibleCodes(std::vector<AwardCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
-/*
+
     double calculateAggregate();
     bool checkAllModulesPassed();
     void generateCode();
     void populatePossibleDecisions();
-    void calculateProgression();*/
+    void calculateProgression();
 };
 
 #endif // COURSEATTEMPT_H

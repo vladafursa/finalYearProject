@@ -10,8 +10,8 @@
 #include "studentrecord.h"
 
 int main(){
-    examBoard exboard;
-
+    examBoard exboard;}
+/*
 
     std::cout<<"Time for vector!!!"<<std::endl;
 
@@ -86,7 +86,7 @@ int main(){
     }}
 
 
-
+*/
 /*
     std::vector<Student> students = exboard.retrieveStudents();
     for (const auto& student : students) {
