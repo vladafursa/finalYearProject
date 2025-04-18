@@ -48,7 +48,7 @@ std::vector<NEC> examBoard::retrieveNec(){
                 std::string referenceNumber = row["referenceNumber"].c_str();
                 std::string studentNumber = row["studentNumber"].c_str();
                 bool upheld = row["upheld"].as<bool>();
-                 std::string type = row["type"].c_str();
+                std::string type = row["type"].c_str();
 
                 nec.emplace_back(referenceNumber, studentNumber, upheld, type);
             }
@@ -91,7 +91,7 @@ std::vector<Module> examBoard::retrieveModules(){
 
 }
 
- const Assessment& examBoard::retrieveAssessmentByID(std::string providedID) {
+const Assessment& examBoard::retrieveAssessmentByID(std::string providedID) {
 
     auto it = std::find_if(assessments.begin(), assessments.end(), [&providedID](const Assessment& a) {
         return a.getId() == providedID;
@@ -101,14 +101,14 @@ std::vector<Module> examBoard::retrieveModules(){
 }
 
 
- const Module& examBoard::retrieveModuleByCode(std::string providedCode){
+const Module& examBoard::retrieveModuleByCode(std::string providedCode){
     auto it = std::find_if(modules.begin(), modules.end(), [&providedCode](const Module& m) {
         return m.getCode() == providedCode;
     });
     return *it;
- }
+}
 
- const NEC* examBoard::retrieveNecForStudent(std::string referenceNumber) {
+const NEC* examBoard::retrieveNecForStudent(std::string referenceNumber) {
     auto it = std::find_if(nec.begin(), nec.end(), [&referenceNumber](const NEC& n) {
         return n.getReferenceNumber() == referenceNumber;
     });
@@ -118,13 +118,13 @@ std::vector<Module> examBoard::retrieveModules(){
     } else {
         return nullptr;
     }
- }
+}
 
 
 
 
 
- std::string examBoard::retrieveModuleType(std::string studentNumber, std::string moduleCode){
+std::string examBoard::retrieveModuleType(std::string studentNumber, std::string moduleCode){
     std::string optionality;
     try {
         pqxx::connection conn("dbname=examinationboard user=master password=password host=board.cv2888uq44nv.eu-north-1.rds.amazonaws.com port=5432");
@@ -151,11 +151,11 @@ std::vector<Module> examBoard::retrieveModules(){
     }
 
     return optionality;
- }
+}
 
 
 
- std::vector<AssessmentAttempt> examBoard::retrieveAssessmentAttemptsForStudent(std::string studentNumber) {
+std::vector<AssessmentAttempt> examBoard::retrieveAssessmentAttemptsForStudent(std::string studentNumber) {
     std::vector<AssessmentAttempt> attempts;
     try {
         pqxx::connection conn("dbname=examinationboard user=master password=password host=board.cv2888uq44nv.eu-north-1.rds.amazonaws.com port=5432");
@@ -184,7 +184,7 @@ std::vector<Module> examBoard::retrieveModules(){
 
                 const Assessment* assessmentPtr = nullptr;
                 const AssessmentCode* providedCode=nullptr;
-                 const AssessmentCode* fCode=nullptr;
+                const AssessmentCode* fCode=nullptr;
                 const NEC* providedNec = nullptr;
                 const Misconduct* providedMisconduct = nullptr;
                 if (!originalAttemptID.empty()) {
@@ -221,9 +221,9 @@ std::vector<Module> examBoard::retrieveModules(){
         std::cerr << "Error: " << e.what() << std::endl;
     }
     return attempts;
- }
+}
 
- /*
+/*
     AssessmentAttempt(std::string providedStudentNumber,
 
             const AssessmentCode* providedCode = nullptr,//optional
@@ -311,7 +311,6 @@ std::vector<std::shared_ptr<AssessmentAttempt>> examBoard::retrieveAssessmentAtt
 
     return attemptPtrs;
 }
-
 
 
 std::vector<ModuleAttempt> examBoard::retrieveModuleAttemptsForStudent(std::string studentNumber) {
@@ -540,11 +539,13 @@ std::vector<std::shared_ptr<ModuleAttempt>> examBoard::retrieveModuleAttemptsFor
 
             // Execute the query
             pqxx::result result = txn.exec_params(
-                "SELECT DISTINCT m.studentNumber, m.code, m.number, m.year, m.grade, m.finalCode, m.creditsEarned "
+                "SELECT m.studentNumber, m.code, m.number, m.year, m.grade, m.finalCode, m.creditsEarned "
                 "FROM moduleAttempt m "
                 "JOIN stageContent sc ON sc.code = m.code "
                 "JOIN stageAttempt sa ON sc.id = sa.id "
-                "WHERE sa.studentNumber = $1 AND sa.id = $2",
+                "WHERE sa.studentNumber = $1 "
+                "AND sa.id = $2 "
+                "AND m.studentNumber = $1",
                 studentNumber, stageId
                 );
 
@@ -779,6 +780,17 @@ void examBoard::preLoadInfoData(){
     retrieveStudents();
 }
 std::vector<StudentRecord> examBoard::loadStudentRecords(){
+    students.clear();
+    std::cout << "Students vector size after clearing: " << students.size() << std::endl;
+    studentRecords.clear();
+    courses.clear();
+    stages.clear();
+    //modules.clear();
+   // assessments.clear();
+    assessmentAttempts.clear();
+    allAssessmentAttempts.clear();
+    nec.clear();
+
     preLoadInfoData();
     for (const auto& student : students) {
         CourseAttempt* courseAttempt = retrieveStudentCourseAttept(student.getStudentNumber());

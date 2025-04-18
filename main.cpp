@@ -25,20 +25,20 @@ int main(){
         std::cout<<sr.getStudent().getName()<<std::endl;
         std::cout<<sr.getCourseAttempt()->getCourse().getName();
 
-        const std::vector<std::shared_ptr<StageAttempt>>& stageAttempts =sr.getCourseAttempt()->getAttempts();
 
 
-        for (const auto& stageAttemptPtr : stageAttempts) {
+
+        for (const auto& stageAttemptPtr : sr.getCourseAttempt()->getAttempts()) {
             const Stage& stage = stageAttemptPtr->getStage();
+            std::cout << stage.getId()<<std::endl;
             for (const auto& module : stage.getModules()) {
                 std::cout << module->getCode() << "        ";
             }
             std::cout << std::endl;
-            const std::vector<std::shared_ptr<ModuleAttempt>>& moduleAttempts =stageAttemptPtr->getAttempts();
 
-            for (const auto& moduleAttemptPtr : moduleAttempts) {
-                std::shared_ptr<ModuleAttempt> moduleAttempt = moduleAttemptPtr;
-                //   std::cout <<moduleAttempt->getModule().getCode()<< "   "<<moduleAttempt->getYear()<< std::endl;
+            for (const auto& moduleAttemptPtr : stageAttemptPtr->getAttempts()) {
+                const std::shared_ptr<ModuleAttempt> moduleAttempt = moduleAttemptPtr;
+                  //std::cout <<moduleAttempt->getModule().getCode()<< "   "<<moduleAttempt->getYear()<< std::endl;
 
                 const Module& module = moduleAttempt->getModule();
 
@@ -70,7 +70,7 @@ int main(){
                 }
                 std::cout << std::endl;
 
-                for(const auto& assessmentAttempt : moduleAttempt->getAttempts()){
+                for(const auto& assessmentAttempt : moduleAttempt->getFinalattempts()){
                     std::cout<<assessmentAttempt->getAssessment().getId()<< " "<<assessmentAttempt->getGradePoints()<<"  ";
                     if(assessmentAttempt->getCode()!=nullptr){
                         std::cout<< assessmentAttempt->getCode()->getCode()<< "  ";

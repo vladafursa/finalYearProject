@@ -60,6 +60,7 @@ public:
     int checkReferred();
     int checkFirstSeats() ;
     int checkFail() ;
+    double customRound(double value);
 
 };
 

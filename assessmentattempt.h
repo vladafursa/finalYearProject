@@ -30,14 +30,14 @@ private:
 public:
     //constructors
     AssessmentAttempt(std::string providedStudentNumber,
-            const Assessment& providedAssessment,
-            int providedNumberOfAttempt,
-            bool providedSubmittedLate,
-            int providedGradePoints,
-            const AssessmentCode* providedCode = nullptr,//optional
-            const NEC* providedNec = nullptr,//optional
-            const Misconduct* providedMisconduct = nullptr,
-            const Assessment* providedOriginalAttempt = nullptr);//optional
+                      const Assessment& providedAssessment,
+                      int providedNumberOfAttempt,
+                      bool providedSubmittedLate,
+                      int providedGradePoints,
+                      const AssessmentCode* providedCode = nullptr,//optional
+                      const NEC* providedNec = nullptr,//optional
+                      const Misconduct* providedMisconduct = nullptr,
+                      const Assessment* providedOriginalAttempt = nullptr);//optional
 
     //getters
     std::string getStudentNumber() const;

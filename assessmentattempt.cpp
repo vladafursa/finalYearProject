@@ -3,14 +3,14 @@
 //constructors
 
 AssessmentAttempt::AssessmentAttempt(std::string providedStudentNumber,
-                const Assessment& providedAssessment,
-                int providedNumberOfAttempt,
-                bool providedSubmittedLate,
-                int providedGradePoints,
-                const AssessmentCode* providedCode,
-                const NEC* providedNec,
-                const Misconduct* providedMisconduct,
-                const Assessment* providedOriginalAttempt): assessment(providedAssessment) {
+                                     const Assessment& providedAssessment,
+                                     int providedNumberOfAttempt,
+                                     bool providedSubmittedLate,
+                                     int providedGradePoints,
+                                     const AssessmentCode* providedCode,
+                                     const NEC* providedNec,
+                                     const Misconduct* providedMisconduct,
+                                     const Assessment* providedOriginalAttempt): assessment(providedAssessment) {
 
     studentNumber=providedStudentNumber;
     numberOfAttempt=providedNumberOfAttempt;
@@ -137,15 +137,15 @@ void AssessmentAttempt::populatePossibleDecisions(){
     }
 
     if(type=="referral"){
-         if(gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+        if(gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
             setFinalCode(&AssessmentCodes::PR);
         }
-         else{
+        else{
             setFinalCode(&AssessmentCodes::FE);
         }
     }
     if(type=="repeat" && gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-         setFinalCode(&AssessmentCodes::PY);
+        setFinalCode(&AssessmentCodes::PY);
     }
     if(numberOfAttempt==2 && !gradeSystem.isGreaterThanThreshold(grade, "3LOW") && nec==nullptr){
         setFinalCode(&AssessmentCodes::FN);
@@ -157,24 +157,23 @@ void AssessmentAttempt::applyMisconduct(){
     if(misconduct!=nullptr){
         if(misconduct->getOutcome()=="the assessment is capped at low 3"){
             if (gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-            setGrade("3LOW");
-            setGradePoints(4);
-            setFinalCode(&AssessmentCodes::PB);
+                setGrade("3LOW");
+                setGradePoints(4);
+                setFinalCode(&AssessmentCodes::PB);
             }
             else{
-            setFinalCode(&AssessmentCodes::FC);//???????
+                setFinalCode(&AssessmentCodes::FC);//???????
             }
         }
         if(misconduct->getOutcome()=="the assessment is capped at zero"){
-        if (gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
-            setGrade("ZERO");
-            setGradePoints(0);
-            setFinalCode(&AssessmentCodes::PJ);
-        }else{
-            setFinalCode(&AssessmentCodes::FC);
+            if (gradeSystem.isGreaterThanThreshold(grade, "3LOW")){
+                setGrade("ZERO");
+                setGradePoints(0);
+                setFinalCode(&AssessmentCodes::PJ);
+            }else{
+                setFinalCode(&AssessmentCodes::FC);
             }
         }
     }
 }
-
 

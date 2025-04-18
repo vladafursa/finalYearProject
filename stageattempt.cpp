@@ -3,7 +3,7 @@
 
 //constructor
 StageAttempt::StageAttempt(std::string providedStudentNumber,
-             const Stage& providedStage,
+                           const Stage& providedStage,
                            std::vector<std::shared_ptr<ModuleAttempt>>& providedAttempts):stage(providedStage){
     studentNumber = providedStudentNumber;
     attempts = providedAttempts;
@@ -120,18 +120,25 @@ std::vector<std::shared_ptr<ModuleAttempt>> StageAttempt::getFinalattempts() con
 
     return finalAttempts;
 }
-
+double StageAttempt::customRound(double value) {
+    double fractionalPart = value - std::floor(value);
+    if (fractionalPart == 0.5) {
+        return std::ceil(value);
+    }
+    return std::round(value);
+}
 double StageAttempt::calculateAggregate(){
-   std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
+    std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     aggregate = 0;
     const auto& modules = stage.getModules();
     for (const auto& module : modules) {
         std::string moduleCode =  module->getCode();
-        double weightingOfModule = module->getCredits() / stage.getCredits();
+        double weightingOfModule = static_cast<double>(module->getCredits()) / stage.getCredits();
+
 
         for (const auto& attempt : finalAttempts) {
             std::string attemptModuleCode = attempt->getModule().getCode();
-            int gradePoints = std::ceil(attempt->getAggregate());
+            int gradePoints = customRound(attempt->getAggregate());
 
             if (attemptModuleCode == moduleCode) {
                 aggregate+=gradePoints*weightingOfModule;
@@ -230,10 +237,10 @@ void StageAttempt::applyCompensation(){
                         std::string assessmentId = assessment.first.getId();
                         int weightingOfAssessment = assessment.second;
 
-                            std::string attemptAssessmentId = assessmentAttempt->getAssessment().getId();
+                        std::string attemptAssessmentId = assessmentAttempt->getAssessment().getId();
 
-                            if (attemptAssessmentId == assessmentId) {
-                                limit=limit - attempt->getModule().getCredits()*weightingOfAssessment/100.0;
+                        if (attemptAssessmentId == assessmentId) {
+                            limit=limit - attempt->getModule().getCredits()*weightingOfAssessment/100.0;
                         }
                     }
                 }
@@ -241,7 +248,7 @@ void StageAttempt::applyCompensation(){
             if (assessmentCompensation == false){
 
 
-            limit = limit - attempt->getModule().getCredits();}
+                limit = limit - attempt->getModule().getCredits();}
         }
     }
     remainingCompensationCredits = limit;
@@ -251,7 +258,7 @@ void StageAttempt::applyMisconducts(){
     std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     for (const auto& attempt : finalAttempts){
         if(attempt->getHadMisconduct() == true){
-             attempt->applyMisconduct();
+            attempt->applyMisconduct();
         }
     }
 }
@@ -406,4 +413,3 @@ void StageAttempt::setTypes(){
         }
     }
 }
-
