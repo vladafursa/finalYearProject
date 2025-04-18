@@ -303,6 +303,202 @@ BOOST_AUTO_TEST_CASE(twoAggregateTest) {
 }
 
 
+/*
+//testing getting latest attempts
+BOOST_AUTO_TEST_CASE(allFirstAttemptsTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getLatestAttempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(oneSecondAttemptTest) {
+    AssessmentWeightsMap assessmentList1;
+    assessmentList1.emplace(cwk1, 60);
+    assessmentList1.emplace(ex1, 40);
+    Module mod1("1111", "some module", 20);
+    mod1.setAssessmentWeights(assessmentList1);
+
+    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 5);
+    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
+    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
+    attempts.push_back(attempt1);
+    attempts.push_back(attempt2);
+    attempts.push_back(attempt3);
+
+    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
+
+    int expectedResult = 2;
+    int actualResult = moduleAttempt1.getLatestAttempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    //chech that needed attempt was added
+    bool found = false;
+    for (const auto& attempt : moduleAttempt1.getLatestAttempts()) {
+        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
+            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
+            found = true;
+            break;
+        }
+    }
+    BOOST_CHECK(found);
+}
+*/
+
+BOOST_AUTO_TEST_CASE(allFirstAttemptsTest) {
+
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4,modules, 20);
+
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 2;
+    int actualResult =  sta1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(oneSecondAttemptTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    Stage st1("St1", 120, 1,4,modules, 20);
+
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod1, 2, "202425", assessmentAttempts);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 1;
+    int actualResult =  sta1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+
+    //chech that needed attempt was added
+    int foundNeededAttempts=0;
+    for (const auto& attempt : sta1.getFinalattempts()) {
+        if (attempt->getModule().getCode() == moduleAttempt2->getModule().getCode() &&
+            attempt->getNumberOfAttempt() == moduleAttempt2->getNumberOfAttempt()) {
+            foundNeededAttempts++;
+        }
+    }
+
+    BOOST_CHECK_EQUAL(foundNeededAttempts, 1);
+}
+
+
+
+BOOST_AUTO_TEST_CASE(allSecondAttemptTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4,modules, 20);
+
+
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod1, 2, "202425", assessmentAttempts);
+    auto moduleAttempt3 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+    auto moduleAttempt4 = std::make_shared<ModuleAttempt>("T1", mod2, 2, "202425", assessmentAttempts);
+
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    attempts.push_back(moduleAttempt3);
+    attempts.push_back(moduleAttempt4);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 2;
+    int actualResult =  sta1.getFinalattempts().size();
+
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+
+    //chech that needed attempt was added
+    int foundNeededAttempts=0;
+
+    for (const auto& attempt : sta1.getFinalattempts()) {
+        if ((attempt->getModule().getCode() == moduleAttempt2->getModule().getCode() &&
+             attempt->getNumberOfAttempt() == moduleAttempt2->getNumberOfAttempt()) ||
+            (attempt->getModule().getCode() == moduleAttempt4->getModule().getCode() &&
+             attempt->getNumberOfAttempt() == moduleAttempt4->getNumberOfAttempt())) {
+            foundNeededAttempts++;
+        }
+    }
+    BOOST_CHECK_EQUAL(foundNeededAttempts, 2);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
     /*
