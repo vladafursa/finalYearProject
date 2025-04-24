@@ -27,6 +27,8 @@ public:
                  std::vector<std::shared_ptr<StageAttempt>>& providedAttempts);
 
     std::string getStudentNumber() const;
+    std::string getClassification() const;
+    std::string getStartClassification() const;
     const Course& getCourse() const;
     const std::vector<std::shared_ptr<StageAttempt>>& getAttempts() const;
     double getWeightedAwarsClassification() const;
@@ -41,6 +43,7 @@ public:
     void setFinalCode(const AwardCode* providedProgressionCode);
     void setPossibleCodes(std::vector<AwardCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
+    void setStartClassification(std::string providedStartClassification);
 
     double calculateAggregate();
     bool checkAllModulesPassed();

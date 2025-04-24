@@ -57,26 +57,49 @@ void CourseAttempt::setPossibleCodes(std::vector<AwardCode*>& providedPosibleCod
 void CourseAttempt::setGrade(std::string providedGrade){
     grade = providedGrade;
 }
-
+std::string CourseAttempt::getClassification() const{
+    return classification;
+}
+std::string CourseAttempt::getStartClassification() const {
+    std::string classification = course.getStartClassification();
+    return classification;
+}
+void CourseAttempt::setStartClassification(std::string providedStartClassification){
+    classification = providedStartClassification;
+}
 
 void CourseAttempt::calculateProgression(){
+    bool needThinking = false;
+
     for(const auto& attempt : attempts){
-        if(attempt->getStage().getLevel()==4 && attempt->getCreditsEarned()<120){
-            if(attempt->getStage().getLevel()==5){
-                if(classification == "Bachelor"){
-                    std::vector<const ProgressionCode*> thoughtCodes;
-                    thoughtCodes.push_back(&ProgressionCodes::FC);
-                    thoughtCodes.push_back(&ProgressionCodes::FD);
-                    thoughtCodes.push_back(&ProgressionCodes::DF);
-                    thoughtCodes.push_back(&ProgressionCodes::RE);
-                    thoughtCodes.push_back(&ProgressionCodes::RP);
-                    thoughtCodes.push_back(&ProgressionCodes::PG);
-                    attempt->setPossibleCodes(thoughtCodes);//mayb third attempt for level 4 assessment
-                }
+        if(attempt->getStage().getLevel() == 4 && attempt->getCreditsEarned() < 120){
+            needThinking = true;
+            std::cout<<"i was triggered to set thinking"<<std::endl;
+            std::cout<<"my number of credits is "<<attempt->getCreditsEarned();
+            std::cout<<"my level is"<< attempt->getStage().getLevel();
+            break;
+        }
+    }
+
+    if (needThinking && classification == "Bachelor") {
+
+        for (const auto& attempt : attempts) {
+            if (attempt->getStage().getLevel() == 5) {
+
+                std::vector<const ProgressionCode*> thoughtCodes{
+                    &ProgressionCodes::FC,
+                    &ProgressionCodes::FD,
+                    &ProgressionCodes::DF,
+                    &ProgressionCodes::RE,
+                    &ProgressionCodes::RP,
+                    &ProgressionCodes::PG
+                };
+                attempt->setPossibleCodes(thoughtCodes);
             }
         }
     }
 }
+
 
 void CourseAttempt::generateCode(){
     grade = gradeSystem.assignGrade(calculateAggregate());
