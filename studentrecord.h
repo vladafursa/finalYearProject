@@ -25,11 +25,20 @@ public:
                     assessment->getGrade();
                     assessment->populatePossibleDecisions();
                 }
+                module->transferMisconduct();
                 module->calculateAggregate();
                 module->getGrade();
                 module->generateCode();
             }
+            stage->determinCompensationPass();
+            stage->generateCode();
+            stage->applyMisconducts();
+            stage->applyCompensation();
+            stage->calculateAggregate();
         }
+        courseAttempt->calculateProgression();
+        courseAttempt->calculateAggregate();
+        courseAttempt->generateCode();
     }
 
 

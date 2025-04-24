@@ -88,17 +88,17 @@ const std::set<const ModuleCode*> REPEAT_CODES = {
 
 static const std::vector<const ModuleCode*> allCodes = {
     &PA, &PC, &PN, &PM, &PD, &PL, &PR, &PF, &PX, &PH, &PE, &PG,
-    &PQ, &PK, &PB, &PJ, &NC, &PO, &PT, &PV, &PY, // Pass codes
+    &PQ, &PK, &PB, &PJ, &NC, &PO, &PT, &PV, &PY,
 
-    &RR, &RM, &RW,                               // Referral codes
+    &RR, &RM, &RW,
 
-    &DF,                                         // Defer codes
+    &DF,
 
-    &S1, &S2, &S3, &S4,                          // First Sit codes
+    &S1, &S2, &S3, &S4,
 
-    &FP, &F1, &FA, &FN, &FR, &FC, &FM, &FO,      // Fail codes
+    &FP, &F1, &FA, &FN, &FR, &FC, &FM, &FO,
 
-    &EB,                                         // Mark change codes
+    &EB,
 
     &WD, &WA
 };

@@ -10,17 +10,23 @@ SOURCES += moduletests.cpp \
         ../assessmentcode.cpp \
         ../awardcode.cpp \
         ../code.cpp \
+        ../course.cpp \
+        ../courseattempt.cpp \
+        ../examboard.cpp \
+        ../grades.cpp \
         ../misconduct.cpp \
         ../module.cpp \
         ../moduleattempt.cpp \
-        ../stage.cpp \
-         ../stageattempt.cpp \
         ../modulecode.cpp \
+        ../stage.cpp \
+        ../stageattempt.cpp \
+        ../student.cpp \
+        ../studentrecord.cpp \
         ../nec.cpp \
         ../progressioncode.cpp \
-        ../grades.cpp \
         assessmenttests.cpp \
         coursetests.cpp \
+        databasetests.cpp \
         gradesystemtests.cpp \
         stagetests.cpp \
         testmain.cpp
@@ -37,3 +43,7 @@ INCLUDEPATH += ../
 HEADERS += \
     coursetests.h
 #add h files
+
+INCLUDEPATH += /opt/homebrew/include
+LIBS += -L/opt/homebrew/lib -lpqxx -L/opt/homebrew/opt/libpq/lib -lpq
+

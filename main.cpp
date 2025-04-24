@@ -16,9 +16,9 @@ int main(){
     std::cout<<"Time for vector!!!"<<std::endl;
 
     std::vector<StudentRecord> studentsRecords = exboard.loadStudentRecords();
-        for(const auto& sr: studentsRecords){
-            sr.prepareData();
-        }
+    for(const auto& sr: studentsRecords){
+        sr.prepareData();
+    }
 
 
     for(const auto& sr: studentsRecords){
@@ -38,12 +38,12 @@ int main(){
 
             for (const auto& moduleAttemptPtr : stageAttemptPtr->getAttempts()) {
                 const std::shared_ptr<ModuleAttempt> moduleAttempt = moduleAttemptPtr;
-                  //std::cout <<moduleAttempt->getModule().getCode()<< "   "<<moduleAttempt->getYear()<< std::endl;
+                    //std::cout <<moduleAttempt->getModule().getCode()<< "   "<<moduleAttempt->getYear()<< std::endl;
 
                 const Module& module = moduleAttempt->getModule();
 
                 std::cout << "Module Code: " << module.getCode() << std::endl;
-/*
+                /*
                 const AssessmentWeightsMap& weights = module.getAssessmentsWithWeights();
 
 
@@ -92,6 +92,19 @@ int main(){
 
 
             }
+
+            std::cout<<"stage aggregate: "<<stageAttemptPtr-> calculateAggregate()<<std::endl;
+            if(stageAttemptPtr && stageAttemptPtr->getFinalCode()){
+                std::cout<<"stage outcome: "<<stageAttemptPtr->getFinalCode()->getCode()<<std::endl;
+            }
+            if(stageAttemptPtr && !stageAttemptPtr->getPossibleCodes().empty()){
+                for(const auto& a : stageAttemptPtr->getPossibleCodes()){
+                    if(a){
+                        std::cout << a->getCode() << " ";
+                    }
+                }
+            }
+
         }
 
         std::cout << std::endl;
@@ -223,7 +236,6 @@ int main(){
 
     std::cout << std::endl;
 */
-
 
 
 

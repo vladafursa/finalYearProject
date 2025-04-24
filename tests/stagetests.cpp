@@ -219,7 +219,9 @@ BOOST_AUTO_TEST_CASE(twoAggregateTest) {
 
 
     BOOST_CHECK_EQUAL(sta1.calculateAggregate(), 11);
-}BOOST_AUTO_TEST_CASE(determinCompensationPassTest) {
+}
+
+BOOST_AUTO_TEST_CASE(determinCompensationPassTest) {
     AssessmentWeightsMap assessmentList1;
     assessmentList1.emplace(cwk1, 30);
     assessmentList1.emplace(cwk2, 70);
@@ -302,66 +304,6 @@ BOOST_AUTO_TEST_CASE(twoAggregateTest) {
 
 }
 
-
-/*
-//testing getting latest attempts
-BOOST_AUTO_TEST_CASE(allFirstAttemptsTest) {
-    AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(cwk1, 60);
-    assessmentList1.emplace(ex1, 40);
-    Module mod1("1111", "some module", 20);
-    mod1.setAssessmentWeights(assessmentList1);
-
-    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 16);
-    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
-
-    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
-    attempts.push_back(attempt1);
-    attempts.push_back(attempt2);
-
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
-
-    int expectedResult = 2;
-    int actualResult = moduleAttempt1.getLatestAttempts().size();
-
-    BOOST_CHECK_EQUAL(actualResult, expectedResult);
-}
-
-BOOST_AUTO_TEST_CASE(oneSecondAttemptTest) {
-    AssessmentWeightsMap assessmentList1;
-    assessmentList1.emplace(cwk1, 60);
-    assessmentList1.emplace(ex1, 40);
-    Module mod1("1111", "some module", 20);
-    mod1.setAssessmentWeights(assessmentList1);
-
-    auto attempt1 = std::make_shared<AssessmentAttempt>("T1", cwk1, 1, false, 5);
-    auto attempt2 = std::make_shared<AssessmentAttempt>("T1", ex1, 1, false, 16);
-    auto attempt3 = std::make_shared<AssessmentAttempt>("T1", ex2, 2,  false, 16, nullptr, nullptr, nullptr, &ex1);
-
-    std::vector<std::shared_ptr<AssessmentAttempt>> attempts;
-    attempts.push_back(attempt1);
-    attempts.push_back(attempt2);
-    attempts.push_back(attempt3);
-
-    ModuleAttempt moduleAttempt1("T1", mod1, 1, "202425", attempts);
-
-    int expectedResult = 2;
-    int actualResult = moduleAttempt1.getLatestAttempts().size();
-
-    BOOST_CHECK_EQUAL(actualResult, expectedResult);
-
-    //chech that needed attempt was added
-    bool found = false;
-    for (const auto& attempt : moduleAttempt1.getLatestAttempts()) {
-        if (attempt->getAssessment().getName() == attempt3->getAssessment().getName() &&
-            attempt->getNumberOfAttempt() == attempt3->getNumberOfAttempt()) {
-            found = true;
-            break;
-        }
-    }
-    BOOST_CHECK(found);
-}
-*/
 
 BOOST_AUTO_TEST_CASE(allFirstAttemptsTest) {
 
@@ -449,7 +391,7 @@ BOOST_AUTO_TEST_CASE(allSecondAttemptTest) {
 
     std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
 
-    Module mod2("1111", "some module", 20);
+    Module mod2("1112", "some module", 20);
 
     std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
 
@@ -499,11 +441,1032 @@ BOOST_AUTO_TEST_CASE(allSecondAttemptTest) {
 }
 
 
+BOOST_AUTO_TEST_CASE(allPassedWithPACodeTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    bool expectedResult = true;
+    bool actualResult =  sta1.checkAllModulesPassed();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+}
+
+BOOST_AUTO_TEST_CASE(allPassedWithDifferentPassCodesTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PC);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    bool expectedResult = true;
+    bool actualResult =  sta1.checkAllModulesPassed();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+}
+
+BOOST_AUTO_TEST_CASE(oneReferredAnotherPassTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::RR);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    bool expectedResult = false;
+    bool actualResult =  sta1.checkAllModulesPassed();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+}
+
+BOOST_AUTO_TEST_CASE(oneFailAnotherPassTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::F1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    bool expectedResult = false;
+    bool actualResult =  sta1.checkAllModulesPassed();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+}
+
+
+BOOST_AUTO_TEST_CASE(allNotPassDifferentCodesTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt2->setFinalCode(&ModuleCodes::F1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    bool expectedResult = false;
+    bool actualResult =  sta1.checkAllModulesPassed();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allNotPassSameCodesTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt2->setFinalCode(&ModuleCodes::RR);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    bool expectedResult = false;
+    bool actualResult =  sta1.checkAllModulesPassed();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(allPassCheckFailTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 0;
+    int actualResult =  sta1.checkFail();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(oneFailCheckFailTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt2->setFinalCode(&ModuleCodes::F1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 1;
+    int actualResult =  sta1.checkFail();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allFailCheckFailTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::FR);
+    moduleAttempt2->setFinalCode(&ModuleCodes::F1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 2;
+    int actualResult =  sta1.checkFail();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(allPassCheckReferredTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 0;
+    int actualResult =  sta1.checkReferred();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(oneReferredCheckReferredTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt2->setFinalCode(&ModuleCodes::F1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 1;
+    int actualResult =  sta1.checkReferred();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allReferredCheckReferredTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt2->setFinalCode(&ModuleCodes::RR);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 2;
+    int actualResult =  sta1.checkReferred();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+
+BOOST_AUTO_TEST_CASE(allPassCheckFirstSitsTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 0;
+    int actualResult =  sta1.checkFirstSeats();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(oneFirstSitCheckFirstSitsTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::S1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 1;
+    int actualResult =  sta1.checkFirstSeats();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allFirstSitsCheckFirstSitsTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1,4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::S1);
+    moduleAttempt2->setFinalCode(&ModuleCodes::S1);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+
+
+    int expectedResult = 2;
+    int actualResult =  sta1.checkFirstSeats();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+//code distribution tests
+BOOST_AUTO_TEST_CASE(allModulesPassedFirstYearProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1, 4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "P1";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(allModulesPassedFinalYearProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "SO";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(firstSitInAugProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 1, 4, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::S2);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "R1";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(firstSitNextYearProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setFinalCode(&ModuleCodes::S3);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "F1";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(variousFirstSitProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 120, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::S2);
+    moduleAttempt2->setFinalCode(&ModuleCodes::S3);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "F1";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(allowedDefficiencyProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    Stage st1("St1", 40, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt1->setCreditsEarned(0);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setCreditsEarned(20);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.getCreditsEarned();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "PD";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+BOOST_AUTO_TEST_CASE(notAllowedDefficiencyProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    Module mod3("1113", "some module", 20);
+
+    std::shared_ptr<Module> mod3ptr = std::make_shared<Module>(mod3);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    modules.push_back(mod3ptr);
+    Stage st1("St1", 60, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+    auto moduleAttempt3 = std::make_shared<ModuleAttempt>("T1", mod3, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt1->setCreditsEarned(0);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setCreditsEarned(20);
+    moduleAttempt3->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt3->setCreditsEarned(0);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    attempts.push_back(moduleAttempt3);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.generateCode();
+
+    bool expectedResult = false;
+
+    bool actualResult;
+    if(sta1.getFinalCode()->getCode()!="PD"){
+        actualResult = false;
+    }
+    else{
+        actualResult = true;
+    }
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
+
+
+BOOST_AUTO_TEST_CASE(referredProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    Module mod3("1113", "some module", 20);
+
+    std::shared_ptr<Module> mod3ptr = std::make_shared<Module>(mod3);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    modules.push_back(mod3ptr);
+    Stage st1("St1", 60, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+    auto moduleAttempt3 = std::make_shared<ModuleAttempt>("T1", mod3, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt1->setCreditsEarned(0);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setCreditsEarned(20);
+    moduleAttempt3->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt3->setCreditsEarned(0);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    attempts.push_back(moduleAttempt3);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.getCreditsEarned();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "RF";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes().size(), 5);
+
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[0]->getCode(), "RA");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[1]->getCode(), "RN");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[2]->getCode(), "RS");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[3]->getCode(), "DF");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[4]->getCode(), "PR");
+}
+
+
+BOOST_AUTO_TEST_CASE(mixOfRferralsAndFailuresProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    Module mod3("1113", "some module", 20);
+
+    std::shared_ptr<Module> mod3ptr = std::make_shared<Module>(mod3);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    modules.push_back(mod3ptr);
+    Stage st1("St1", 60, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+    auto moduleAttempt3 = std::make_shared<ModuleAttempt>("T1", mod3, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::RR);
+    moduleAttempt1->setCreditsEarned(0);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setCreditsEarned(20);
+    moduleAttempt3->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt3->setCreditsEarned(0);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    attempts.push_back(moduleAttempt3);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.getCreditsEarned();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "RR";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes().size(), 2);
+
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[0]->getCode(), "DF");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[1]->getCode(), "FR");
+}
+
+BOOST_AUTO_TEST_CASE(someFailuresProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    Module mod3("1113", "some module", 20);
+
+    std::shared_ptr<Module> mod3ptr = std::make_shared<Module>(mod3);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    modules.push_back(mod3ptr);
+    Stage st1("St1", 60, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+    auto moduleAttempt3 = std::make_shared<ModuleAttempt>("T1", mod3, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt1->setCreditsEarned(0);
+    moduleAttempt2->setFinalCode(&ModuleCodes::PA);
+    moduleAttempt2->setCreditsEarned(20);
+    moduleAttempt3->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt3->setCreditsEarned(0);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    attempts.push_back(moduleAttempt3);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.getCreditsEarned();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "FR";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes().size(), 3);
+
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[0]->getCode(), "DF");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[1]->getCode(), "FY");
+    BOOST_CHECK_EQUAL(sta1.getPossibleCodes()[2]->getCode(), "FD");
+}
+
+
+
+BOOST_AUTO_TEST_CASE(allFailuresProgressionTest) {
+    Module mod1("1111", "some module", 20);
+
+    std::shared_ptr<Module> mod1ptr = std::make_shared<Module>(mod1);
+
+    Module mod2("1112", "some module", 20);
+
+    std::shared_ptr<Module> mod2ptr = std::make_shared<Module>(mod2);
+
+    Module mod3("1113", "some module", 20);
+
+    std::shared_ptr<Module> mod3ptr = std::make_shared<Module>(mod3);
+
+    std::vector<std::shared_ptr<Module>> modules;
+    modules.push_back(mod1ptr);
+    modules.push_back(mod2ptr);
+    modules.push_back(mod3ptr);
+    Stage st1("St1", 60, 3, 6, modules, 20);
+
+    std::vector<std::shared_ptr<AssessmentAttempt>> assessmentAttempts;
+
+    std::vector<std::shared_ptr<ModuleAttempt>> attempts;
+
+    auto moduleAttempt1 = std::make_shared<ModuleAttempt>("T1", mod1, 1, "202425", assessmentAttempts);
+    auto moduleAttempt2 = std::make_shared<ModuleAttempt>("T1", mod2, 1, "202425", assessmentAttempts);
+    auto moduleAttempt3 = std::make_shared<ModuleAttempt>("T1", mod3, 1, "202425", assessmentAttempts);
+
+    moduleAttempt1->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt1->setCreditsEarned(0);
+    moduleAttempt2->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt2->setCreditsEarned(0);
+    moduleAttempt3->setFinalCode(&ModuleCodes::F1);
+    moduleAttempt3->setCreditsEarned(0);
+
+    attempts.push_back(moduleAttempt1);
+    attempts.push_back(moduleAttempt2);
+    attempts.push_back(moduleAttempt3);
+    StageAttempt sta1("T1",st1,attempts);
+    sta1.getFinalattempts();
+    sta1.getCreditsEarned();
+    sta1.generateCode();
+
+
+    std::string expectedResult = "FT";
+    std::string actualResult =  sta1.getFinalCode()->getCode();
+    BOOST_CHECK_EQUAL(actualResult, expectedResult);
+}
 BOOST_AUTO_TEST_SUITE_END()
 
-    /*
 
 
-
-
-*/

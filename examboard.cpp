@@ -643,10 +643,10 @@ std::vector<Stage> examBoard::retrieveSpecificForCourseStages(std::string course
             pqxx::nontransaction txn(conn);
 
             pqxx::result result = txn.exec_params("SELECT s.id, s.year, s.level, s.compensationLimit, s.credits "
-                                                   "FROM stage s "
-                                                    "JOIN possibleStagesForCourse ps ON ps.id = s.id "
-                                                    "JOIN course c ON ps.code = c.code "
-                                                    "WHERE c.code = $1", courseCode);
+                                                  "FROM stage s "
+                                                  "JOIN possibleStagesForCourse ps ON ps.id = s.id "
+                                                  "JOIN course c ON ps.code = c.code "
+                                                  "WHERE c.code = $1", courseCode);
 
             stagesForCourse.reserve(result.size());
 
@@ -695,8 +695,8 @@ std::vector<Course> examBoard::retrieveCourses(){
             for (const auto& row : result) {
                 std::string code = row["code"].c_str();
                 std::string name = row["name"].c_str();
-                 std::string startClassification = row["degreeLevel"].c_str();
-                 std::string type = row["studyMode"].c_str();
+                std::string startClassification = row["degreeLevel"].c_str();
+                std::string type = row["studyMode"].c_str();
                 std::vector<std::shared_ptr<Stage>> sharedStages;
 
                 // Reserve space for efficiency
@@ -781,12 +781,11 @@ void examBoard::preLoadInfoData(){
 }
 std::vector<StudentRecord> examBoard::loadStudentRecords(){
     students.clear();
-    std::cout << "Students vector size after clearing: " << students.size() << std::endl;
     studentRecords.clear();
     courses.clear();
     stages.clear();
-    //modules.clear();
-   // assessments.clear();
+    modules.clear();
+    assessments.clear();
     assessmentAttempts.clear();
     allAssessmentAttempts.clear();
     nec.clear();
@@ -799,4 +798,3 @@ std::vector<StudentRecord> examBoard::loadStudentRecords(){
     }
     return studentRecords;
 }
-

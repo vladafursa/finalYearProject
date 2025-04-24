@@ -35,7 +35,7 @@ int StageAttempt::getCreditsEarned() {
     std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     creditsEarned = 0;
     for (const auto& attempt : finalAttempts) {
-        creditsEarned+=creditsEarned+attempt->getCreditsEarned();
+        creditsEarned+=attempt->getCreditsEarned();
     }
     return creditsEarned;
 }
@@ -279,32 +279,36 @@ void StageAttempt::generateCode(){
             setFinalCode(&ProgressionCodes::SO);
         }
     }
-    else if(checkFirstSeats()!=0 && checkFail()==0 && checkReferred()==0){
+    else if (checkFirstSeats() != 0 && checkFail() == 0 && checkReferred() == 0) {
+        bool has1A = false;
+        bool has1N = false;
+
         for (const auto& attempt : finalAttempts) {
             const ModuleCode* code = attempt->getFinalCode();
             std::string stringCode = code->getCode();
+
             for (const auto* fsCode : ModuleCodes::FIRST_SIT_CODES) {
                 if (stringCode == fsCode->getCode()) {
-                    if (checkFirstSeats()==1){
-                        if(stringCode=="1A"){
-                            setFinalCode(&ProgressionCodes::R1);
-                        }
-                        if(stringCode=="1N"){
-                            setFinalCode(&ProgressionCodes::F1);
-                        }
+                    if (stringCode == "1A") {
+                        has1A = true;
+                    }
+                    if (stringCode == "1N") {
+                        has1N = true;
                     }
                     break;
                 }
             }
         }
-        if (checkFirstSeats()!=1){
-            posibleCodes.push_back(&ProgressionCodes::R1);
-            posibleCodes.push_back(&ProgressionCodes::F1);
+
+        if (has1A && !has1N) {
+            setFinalCode(&ProgressionCodes::R1);
+        } else if (has1N) {
+            setFinalCode(&ProgressionCodes::F1);
         }
     }
 
-    if(creditsEarned > (stage.getCredits()-20)){
-        setFinalCode(&ProgressionCodes::PD);//and not final attempt
+    else if(creditsEarned >= (stage.getCredits()-20)){
+        setFinalCode(&ProgressionCodes::PD);
     }
     else{
         if(checkReferred()!=0 && checkFail() ==0){
@@ -321,8 +325,16 @@ void StageAttempt::generateCode(){
             posibleCodes.push_back(&ProgressionCodes::FR);
 
         }
+        if(checkReferred()==0 && checkFail() !=0 && checkFail()!=finalAttempts.size()){
+            setFinalCode(&ProgressionCodes::FR);
+            posibleCodes.push_back(&ProgressionCodes::DF);
+            posibleCodes.push_back(&ProgressionCodes::FY);
+            posibleCodes.push_back(&ProgressionCodes::FD);
+        }
+        if(checkFail()==finalAttempts.size()){
+            setFinalCode(&ProgressionCodes::FT);
+        }
     }
-    //repeat the year, referrals over the summer
 }
 
 int StageAttempt::checkFirstSeats() {
