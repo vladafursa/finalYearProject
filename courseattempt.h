@@ -20,6 +20,7 @@ private:
     std::vector<AwardCode*> posibleCodes;
     Grades gradeSystem;
     std::string grade;
+    int earnedCredits;
 
 public:
     CourseAttempt(std::string providedStudentNumber,
@@ -35,6 +36,8 @@ public:
     const AwardCode* getFinalCode() const;
     const std::vector<AwardCode*>& getPossibleCodes() const;
     std::string getGrade();
+    int getEarnedCredits();
+    int calculateEarnedCredits();
 
     //setters
     void setStudentNumber(std::string providedStudentNumber);
@@ -44,6 +47,7 @@ public:
     void setPossibleCodes(std::vector<AwardCode*>& providedPosibleCodes);
     void setGrade(std::string providedGrade);
     void setStartClassification(std::string providedStartClassification);
+    void setEarnedCredits(int providedEarnedCredits);
 
     double calculateAggregate();
     bool checkAllModulesPassed();

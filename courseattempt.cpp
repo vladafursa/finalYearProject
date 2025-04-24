@@ -68,15 +68,28 @@ void CourseAttempt::setStartClassification(std::string providedStartClassificati
     classification = providedStartClassification;
 }
 
+
+int CourseAttempt::getEarnedCredits(){
+    return earnedCredits;
+}
+int CourseAttempt::calculateEarnedCredits(){
+    int credits = 0;
+    for(const auto& attempt : attempts){
+        credits+=attempt->getCreditsEarned();
+    }
+    return credits;
+}
+
+void CourseAttempt::setEarnedCredits(int providedEarnedCredits){
+    earnedCredits = providedEarnedCredits;
+}
+
 void CourseAttempt::calculateProgression(){
     bool needThinking = false;
 
     for(const auto& attempt : attempts){
         if(attempt->getStage().getLevel() == 4 && attempt->getCreditsEarned() < 120){
             needThinking = true;
-            std::cout<<"i was triggered to set thinking"<<std::endl;
-            std::cout<<"my number of credits is "<<attempt->getCreditsEarned();
-            std::cout<<"my level is"<< attempt->getStage().getLevel();
             break;
         }
     }
@@ -105,7 +118,7 @@ void CourseAttempt::generateCode(){
     grade = gradeSystem.assignGrade(calculateAggregate());
     for(const auto& attempt : attempts){
         if (attempt->getStage().getLevel()==6){
-            if(attempt->getCreditsEarned()==360){
+            if(getEarnedCredits()==360){
                 if (gradeSystem.isGreaterThanThreshold(grade, "1LOW")){
                     setFinalCode(&AwardCodes::C10);
                 }
@@ -120,8 +133,8 @@ void CourseAttempt::generateCode(){
                 }
                 attempt->setFinalCode(&ProgressionCodes::PA);
             }
-            else if (attempt->getCreditsEarned()>=300 && attempt->getCreditsEarned()<360){
-                if (classification == "ordinary"){
+            else if (getEarnedCredits()>=300 && getEarnedCredits()<360){
+                if (classification == "Ordinary"){
                     if (gradeSystem.isGreaterThanThreshold(grade, "1LOW")){
                         setFinalCode(&AwardCodes::DD);
                     }
@@ -134,7 +147,7 @@ void CourseAttempt::generateCode(){
                     attempt->setFinalCode(&ProgressionCodes::RD);
                 }
             }
-            else if (attempt->getCreditsEarned()>=240 && attempt->getCreditsEarned()<300){
+            else if (getEarnedCredits()>=240 && getEarnedCredits()<300){
                 if(classification == "DipHE"){
                     if (gradeSystem.isGreaterThanThreshold(grade, "1LOW")){
                         setFinalCode(&AwardCodes::ID);
@@ -147,20 +160,22 @@ void CourseAttempt::generateCode(){
                     attempt->setFinalCode(&ProgressionCodes::RN);
                 }
             }
-            else{
-                if (attempt->getCreditsEarned()>=120 && attempt->getCreditsEarned()<240)
-                    if(classification=="CertHE"){
-                      if (gradeSystem.isGreaterThanThreshold(grade, "1LOW")){
-                          setFinalCode(&AwardCodes::CD);
-                        }
-                        else{
-                        setFinalCode(&AwardCodes::A1);
-                        }
-                        attempt->setFinalCode(&ProgressionCodes::PA);
+            else if (getEarnedCredits()>=120 && getEarnedCredits()<240){
+                if(classification=="CertHE"){
+                    if (gradeSystem.isGreaterThanThreshold(grade, "1LOW")){
+                        setFinalCode(&AwardCodes::CD);
                     }
                     else{
-                        attempt->setFinalCode(&ProgressionCodes::WD);
+                        setFinalCode(&AwardCodes::A1);
+                    }
+                    attempt->setFinalCode(&ProgressionCodes::PA);
                 }
+                else{
+                    attempt->setFinalCode(&ProgressionCodes::RE);
+                }
+            }
+            else{
+                 attempt->setFinalCode(&ProgressionCodes::WD);
             }
         }
     }
@@ -169,16 +184,19 @@ void CourseAttempt::generateCode(){
 double CourseAttempt::calculateAggregate(){
     double aggregate = 0;
     for(const auto& attempt : attempts){
-        int gradePoints = std::ceil(attempt->getAggregate());
+        int gradePoints = gradeSystem.customRound(attempt->getAggregate());
+        if (attempt->getStage().getLevel()==5){
+            aggregate+=0.2*gradePoints;
+        }
+    }
+    for(const auto& attempt : attempts){
+        int gradePoints = gradeSystem.customRound(attempt->getAggregate());
         if (attempt->getStage().getLevel()==6){
             aggregate+=0.8*gradePoints;
         }
-        if (attempt->getStage().getLevel()==5){
-              aggregate+=0.2*gradePoints;
-        }
-        aggregate = gradeSystem.round(aggregate);
-        return aggregate;
     }
+    aggregate = gradeSystem.round(aggregate);
+    return aggregate;
 }
 
 

@@ -120,13 +120,7 @@ std::vector<std::shared_ptr<ModuleAttempt>> StageAttempt::getFinalattempts() con
 
     return finalAttempts;
 }
-double StageAttempt::customRound(double value) {
-    double fractionalPart = value - std::floor(value);
-    if (fractionalPart == 0.5) {
-        return std::ceil(value);
-    }
-    return std::round(value);
-}
+
 double StageAttempt::calculateAggregate(){
     std::vector<std::shared_ptr<ModuleAttempt>> finalAttempts = getFinalattempts();
     aggregate = 0;
@@ -138,7 +132,7 @@ double StageAttempt::calculateAggregate(){
 
         for (const auto& attempt : finalAttempts) {
             std::string attemptModuleCode = attempt->getModule().getCode();
-            int gradePoints = customRound(attempt->getAggregate());
+            int gradePoints = gradeSystem.customRound(attempt->getAggregate());
 
             if (attemptModuleCode == moduleCode) {
                 aggregate+=gradePoints*weightingOfModule;

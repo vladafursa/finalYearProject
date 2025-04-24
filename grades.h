@@ -34,6 +34,13 @@ public:
     double round(double gradePoint) const;//round to decimals
     std::string assignGrade(double gradePoint) const;//assign grade's code according to point
     bool isGreaterThanThreshold(std::string grade, std::string threshold);//check if it meets threshold requirement
+    double customRound(double value) {
+        double fractionalPart = value - std::floor(value);
+        if (fractionalPart == 0.5) {
+            return std::ceil(value);
+        }
+        return std::round(value);
+    }
 };
 
 #endif // GRADES_H
