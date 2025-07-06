@@ -1,0 +1,1 @@
+Examination board is a formal committee responsible for evaluating student outcomes. The following software focuses on the way of its automation. Regulations for bachelor’s full-time degrees were encoded and implemented in a desktop application with a simulated environment running in a cloud.
